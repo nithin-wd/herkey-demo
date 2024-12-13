@@ -1,18 +1,41 @@
 import type { Config } from "tailwindcss";
-
+import tailwindcssAnimate from "tailwindcss-animate";
 export default {
-  content: [
+    darkMode: ["class"],
+    content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+  	extend: {
+       container: {
+        center: true, // Center the container
+        padding: {
+          DEFAULT: '1rem', // Default padding
+          sm: '2rem',      // Padding for small screens
+          lg: '4rem',      // Padding for large screens
+          xl: '5rem',      // Padding for extra-large screens
+          '2xl': '6rem',   // Padding for 2xl screens
+        },
       },
-    },
+  		colors: {
+  			pearlWhite: '#F1F2ED',
+  			pureWhite: '#FFFFFF',
+  			burgundy: '#935073',
+  			lightBurgundy: '#FCF2F7',
+  			lightGray: '#DEE1E6',
+  			gray: '#EAEAEA',
+  			bgGray: '#F3F2F0',
+  			darkGray: '#858890',
+  			green: '#87C05A',
+  			red: '#FF3636',
+  			blackBerry: '#3F1F32',
+  			black: '#00031E',
+  			offBlack: '#222222',
+  			pureBlack: '#000000'
+  		}
+  	}
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;
