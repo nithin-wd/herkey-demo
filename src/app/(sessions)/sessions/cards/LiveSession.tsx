@@ -37,8 +37,8 @@ const LiveSession = ({ session }: any) => {
                         <div className='absolute top-[30px] z-20 bg-pearlWhite w-[36px] h-[24px] text-[12px] flex justify-center items-center rounded-[4px]'>Host</div>
                     </div>
                     <div>
-                        <div className='font-[500] text-[14px] md:text-[16px]'>{host?.name}</div>
-                        <div className='flex gap-x-2 items-center'>
+                        <div className='font-[500] text-[12px] md:text-[16px]'>{host?.name}</div>
+                        <div className='flex gap-x-2 flex-col md:flex-row md:items-center'>
                             <span className='font-[400] text-[12px] md:text-[14px] text-darkGray'>{host?.position}</span>
                             <span className='font-[500] text-[10px] md:text-[12px] text-burgundy flex items-center gap-x-1'>
                                 <Icons.GraduateHat />

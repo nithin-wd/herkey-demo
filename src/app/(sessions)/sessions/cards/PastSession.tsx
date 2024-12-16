@@ -35,9 +35,9 @@ const PastSession = ({ session }: any) => {
                         {otherParticipantsCount !== 0 && <div className="absolute top-0 left-[30px] bg-lightBurgundy text-burgundy h-[40px] w-[40px] rounded-full z-10  flex justify-center items-center text-[12px]">{`+${otherParticipantsCount}`}</div>}
                         <div className='absolute top-[30px] z-20 bg-pearlWhite w-[36px] h-[24px] text-[12px] flex justify-center items-center rounded-[4px]'>Host</div>
                     </div>
-                    <div>
-                        <div className='font-[500] text-[14px] md:text-[16px]'>{host?.name}</div>
-                        <div className='flex gap-x-2 items-center'>
+                     <div>
+                        <div className='font-[500] text-[12px] md:text-[16px]'>{host?.name}</div>
+                        <div className='flex gap-x-2 flex-col md:flex-row md:items-center'>
                             <span className='font-[400] text-[12px] md:text-[14px] text-darkGray'>{host?.position}</span>
                             <span className='font-[500] text-[10px] md:text-[12px] text-burgundy flex items-center gap-x-1'>
                                 <Icons.GraduateHat />
