@@ -18,7 +18,7 @@ const ScheduledSession = ({ session }: any) => {
 
             <Link href={`${baseURL}/sessions/${session?.id}`}>
                 {session?.banner !== "" &&
-                    <Image src={"/placeholder-banner-image.png"} width={510} height={240} alt='' />
+                       <Image src={"/placeholder-banner-image.png"} width={510} height={240} alt='' className='mb-2' />
                 }
 
                 <div className="flex justify-between gap-x-2">
