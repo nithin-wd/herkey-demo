@@ -8,7 +8,7 @@ const LiveSession = ({ session }: any) => {
     const host = session?.participants?.find((participant: any) => participant?.host)?.user;
     const otherParticipantsCount = session?.participants?.filter((participant: any) => !participant?.host)?.length;
     return (
-        <div className="p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
+        <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
                 <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] w-[68px] h-[28px] justify-center'>
                     <div className='bg-burgundy h-[8px] w-[8px] rounded-full' />

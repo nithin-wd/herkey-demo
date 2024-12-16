@@ -10,7 +10,7 @@ const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 const SessionDetails = async ({ params }: { params: any }) => {
     const { sessionId } = await params
     return (
-        <div className='bg-pureWhite p-[20px] flex flex-col gap-y-4'>
+        <div className='bg-pureWhite p-2 md:p-[20px] flex flex-col gap-y-4'>
             <div className='flex items-center justify-between'>
                 <div className="flex items-center gap-x-2">
                     <Link href={`${baseURL}/sessions`}>

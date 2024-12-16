@@ -15,7 +15,7 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
   return (
     <>
       <SessionTabs activeTab={tab} />
-      <div className="bg-pureWhite px-[20px] font-[500] text-[16px]">Live</div>
+      <div className="bg-pureWhite px-2 md:px-[20px] font-[500] text-[16px]">Live</div>
       <div className="flex flex-col gap-y-[2px] relative mb-[2px]">
         {liveSessions?.map(session =>
           <LiveSession key={session?.id} session={session} />
@@ -25,7 +25,7 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
         </button>
 
       </div>
-      <div className="bg-pureWhite px-[20px] py-[16px]">
+      <div className="bg-pureWhite  px-2 md:px-[20px] py-[16px]">
         <Image src={"/placeholder-add-session.png"} width={510} height={100} alt='' />
         <div className=" font-[500] text-[16px] mt-[12px]">Featured Sessions</div>
       </div>
@@ -35,8 +35,8 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
           <div className="border border-burgundy bg-pureWhite px-2 py-1 rounded-[8px] mb-2 text-burgundy text-[12px]">View more</div>
         </button>
       </div>
-      <div className="bg-pureWhite px-[20px] py-[16px]">
-      <Image src={"/placeholder-add-session.png"} width={510} height={100} alt='' />
+      <div className="bg-pureWhite  px-2 md:px-[20px] py-[16px]">
+        <Image src={"/placeholder-add-session.png"} width={510} height={100} alt='' />
         <div className=" font-[500] text-[16px] mt-[12px]">Past Sessions</div>
       </div>
       <div className="flex flex-col gap-y-[2px] relative mb-[2px]">
@@ -45,7 +45,7 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
           <div className="border border-burgundy bg-pureWhite px-2 py-1 rounded-[8px] mb-2 text-burgundy text-[12px]">View more</div>
         </button>
       </div>
-        <div className="bg-pureWhite h-[20px]"/>
+      <div className="bg-pureWhite h-[20px]" />
 
 
     </>
