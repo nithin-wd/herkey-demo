@@ -8,15 +8,15 @@ export default function SessionsLayout({ children }: { children: React.ReactNode
   return (
     <div className="flex flex-col gap-0 overflow-hidden">
       <Header />
-      <ScrollArea className="bg-bgGray rounded-t-[40px] shadow pt-8  h-[calc(100vh-64px)] overflow-auto">
-        <div className="container grid grid-cols-[248px_auto_248px] gap-x-9 " >
-          <div className="h-fit sticky top-0">
+      <ScrollArea className="bg-pureWhite md:bg-bgGray rounded-t-[40px] shadow pt-8  h-[calc(100vh-64px)] overflow-auto">
+        <div className="container grid grid-cols-1 md:grid-cols-[248px_auto_248px] gap-x-9 " >
+          <div className="h-fit sticky top-0 hidden md:flex">
             <Menu activePage="sessions" />
           </div>
-          <div className="rounded-[16px] shadow overflow-hidden mb-[20px]">
+          <div className="md:rounded-[16px] md:shadow overflow-hidden mb-[20px]">
             {children}
           </div>
-          <div className="text-black bg-pureWhite rounded-[16px] shadow flex flex-col p-4 gap-y-4 h-fit sticky top-0">
+          <div className="text-black bg-pureWhite rounded-[16px] shadow flex-col p-4 gap-y-4 h-fit sticky top-0  hidden md:flex">
             <Image src={"/placeholder-ad-image.png"} width={210} height={116} alt='' />
             <div className="text-burgundy">
               Campus to Corporate Program by HerStart Academy

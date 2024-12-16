@@ -84,6 +84,7 @@ export const sessions = [
       description: "How to ask for a promotion and what you can do to be better at communicating?",
       banner: "",
       eventImage: "",
+      scheduledDate: "15/12/2024 12:00pm",
       participants: [
         {
           host: true,

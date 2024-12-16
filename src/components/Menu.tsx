@@ -7,15 +7,15 @@ import { cn } from '@/lib/utils';
 const Menu = ({ activePage }: { activePage: string }) => {
     const menus = [
         { label: "Home", icon: <Icons.Home />, link: "/", type: "link", id: "home" , linkType: "internal" },
-        { label: "Jobs", icon: <Icons.Home />, link: "/jobs", type: "link", id: "jobs" , linkType: "internal" },
-        { label: "Companies", icon: <Icons.Home />, link: "/companies", type: "link", id: "companies" , linkType: "internal" },
-        { label: "Groups", icon: <Icons.Home />, link: "/groups", type: "link", id: "groups" , linkType: "internal" },
-        { label: "Network", icon: <Icons.Home />, link: "/network", type: "link", id: "network" , linkType: "internal" },
-        { label: "Sessions", icon: <Icons.Home />, link: "/sessions", type: "link", id: "sessions" , linkType: "internal" },
-        { label: "Events", icon: <Icons.Home />, link: "/events", type: "link", id: "events", linkType: "external" },
-        { label: "Create", icon: <Icons.Home />, link: "/create", type: "button", id: "create" },
+        { label: "Jobs", icon: <Icons.Jobs />, link: "/jobs", type: "link", id: "jobs" , linkType: "internal" },
+        { label: "Companies", icon: <Icons.Companies />, link: "/companies", type: "link", id: "companies" , linkType: "internal" },
+        { label: "Groups", icon: <Icons.Groups />, link: "/groups", type: "link", id: "groups" , linkType: "internal" },
+        { label: "Network", icon: <Icons.Network />, link: "/network", type: "link", id: "network" , linkType: "internal" },
+        { label: "Sessions", icon: <Icons.Sessions />, link: "/sessions", type: "link", id: "sessions" , linkType: "internal" },
+        { label: "Events", icon: <Icons.Events />, link: "/events", type: "link", id: "events", linkType: "external" },
+        { label: "Create", icon: <Icons.AddSquare />, link: "/create", type: "button", id: "create" },
         {
-            label: "More", icon: <Icons.Home />, link: "", type: "accordion", id: "more",
+            label: "More", icon: <Icons.More />, link: "", type: "accordion", id: "more",
             subMenus: [
                 { label: "Settings", icon: <Icons.Home />, link: "/settings", type: "link", id: "settings" , linkType: "internal" },
                 { label: "Help", icon: <Icons.Home />, link: "/help", type: "link", id: "help" , linkType: "internal" },

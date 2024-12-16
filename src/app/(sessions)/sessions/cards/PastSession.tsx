@@ -10,9 +10,8 @@ const PastSession = ({ session }: any) => {
     return (
         <div className="p-[20px] text-black bg-pureWhite flex flex-col gap-y-4">
             <div className="flex justify-between">
-                <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] w-[68px] h-[28px] justify-center'>
-                    <div className='bg-burgundy h-[8px] w-[8px] rounded-full' />
-                    <div className='text-blackBerry text-[14px]'>Live</div>
+            <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
+                    <div className='text-blackBerry text-[14px]'>{session?.scheduledDate}</div>
                 </div>
                 <Icons.Share />
             </div>
