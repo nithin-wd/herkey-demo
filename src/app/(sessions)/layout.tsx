@@ -8,7 +8,7 @@ export default function SessionsLayout({ children }: { children: React.ReactNode
   return (
     <div className="flex flex-col gap-0 overflow-hidden">
       <Header />
-      <ScrollArea className="bg-pureWhite md:bg-bgGray rounded-t-[40px] shadow pt-8  h-[calc(100vh-64px)] overflow-auto">
+      <ScrollArea className="bg-pureWhite md:bg-bgGray rounded-t-[40px] shadow pt-8  h-[calc(100dvh-64px)] overflow-auto">
         <div className="container grid grid-cols-1 md:grid-cols-[248px_auto_248px] gap-x-9 " >
           <div className="h-fit sticky top-0 hidden md:flex">
             <Menu activePage="sessions" />
