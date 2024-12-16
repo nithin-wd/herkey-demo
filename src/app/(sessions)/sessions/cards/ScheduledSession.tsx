@@ -45,7 +45,7 @@ const ScheduledSession = ({ session }: any) => {
                         </div>
                     </div>
                 </div>
-                <button className='min-w-[120px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite'>Interested</button>
+                <button className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite'>Interested</button>
             </div>
         </div>
     )

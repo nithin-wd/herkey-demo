@@ -45,7 +45,7 @@ const PastSession = ({ session }: any) => {
                         </div>
                     </div>
                 </div>
-                <button className='min-w-[120px] md:min-w-[200px] h-[40px] bg-[#F5F5F5] rounded-[12px] text-darkGray'>Past</button>
+                <button className='min-w-[112px] md:min-w-[200px] h-[40px] bg-[#F5F5F5] rounded-[12px] text-darkGray'>Past</button>
             </div>
         </div>
     )
