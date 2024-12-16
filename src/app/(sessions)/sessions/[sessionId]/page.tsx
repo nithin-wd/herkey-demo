@@ -24,7 +24,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
                 </div>
             </div>
             <div>Open to Her Rising 2023: India Conclave +5 more</div>
-            <div className='w-[512px] h-[240px] border rounded-2xl text-burgundy flex justify-center items-center'>Video</div>
+            <div className='w-full h-[240px] border rounded-2xl text-burgundy flex justify-center items-center'>Video</div>
             <div className='flex gap-x-2'>
                 <div className='text-[16px] font-[500] text-black'>Visualizing Data: Infographics as Assets and digital records in ERMS</div>
                 <div>
