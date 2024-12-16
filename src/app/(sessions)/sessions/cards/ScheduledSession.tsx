@@ -29,7 +29,7 @@ const ScheduledSession = ({ session }: any) => {
                 </div>
             </Link>
             <div className='flex justify-between items-center'>
-                <div className='flex gap-x-3 items-center'>
+                <div className='flex gap-x-1 md:gap-x-3 items-center'>
                     <div className="relative w-[80px]">
                         <Image src={"/placeholder-user-image.png"} width={40} height={40} alt='' className="h-[40px] w-[40px] rounded-full relative z-20" />
                         {otherParticipantsCount !== 0 && <div className="absolute top-0 left-[30px] bg-lightBurgundy text-burgundy h-[40px] w-[40px] rounded-full z-10  flex justify-center items-center text-[12px]">{`+${otherParticipantsCount}`}</div>}
