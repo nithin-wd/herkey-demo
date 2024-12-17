@@ -104,7 +104,7 @@ const HostView = ({ sessionId, token, UID, currentSession }: { sessionId: string
                         "border border-lightBurgundy bg-burgundy text-lightBurgundy": micOn
                     })} onClick={() => setMic((prev) => !prev)}
                 >
-                    {micOn ?
+                    {!micOn ?
                         <div title="Turn off mic">
                             <MicOff />
                         </div>
@@ -121,7 +121,7 @@ const HostView = ({ sessionId, token, UID, currentSession }: { sessionId: string
                     })}
                     onClick={() => setCamera((prev) => !prev)}
                 >
-                    {cameraOn ?
+                    {!cameraOn ?
                         <div title="Turn off video">
                             <VideoOff />
                         </div>
