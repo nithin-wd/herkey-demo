@@ -13,8 +13,10 @@ import {
 import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import AttendeeCard from "./AttendeeCard";
+import { useRouter } from "next/navigation";
 
 const HostView = ({ sessionId, token, UID, currentSession }: { sessionId: string, token: string, UID: string; currentSession: any }) => {
+    const router = useRouter()
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
@@ -39,6 +41,12 @@ const HostView = ({ sessionId, token, UID, currentSession }: { sessionId: string
     // Get remote users
     const remoteUsers = useRemoteUsers();
     console.log({ remoteUsers })
+
+    const handleLeaveMeeting = () => {
+        setCalling(false);
+        router.push(`/sessions/${sessionId}`)
+
+    }
 
     // Display "Connecting..." message while not connected
     if (!isConnected) {
@@ -126,7 +134,7 @@ const HostView = ({ sessionId, token, UID, currentSession }: { sessionId: string
                 </button>
                 <button
                     className="px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center"
-                    onClick={() => setCalling(false)}
+                    onClick={handleLeaveMeeting}
                 >
                     <div title="Leave the session">
                         <LogOut />
