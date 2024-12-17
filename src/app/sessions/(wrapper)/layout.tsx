@@ -2,8 +2,16 @@
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Metadata } from "next";
 import Image from "next/image";
 
+import { metadata as rootMetaData } from "@/app/layout"
+
+export const metadata: Metadata = {
+  ...rootMetaData,
+  title: "Join HerKey Sessions To Power Your Career Forward",
+  description: "Explore HerKey sessions: Unlock growth, learn from experts, and connect with a community committed to your success!",
+};
 export default function SessionsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-0 overflow-hidden">

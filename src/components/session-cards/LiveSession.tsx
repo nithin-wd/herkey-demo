@@ -3,7 +3,7 @@ import Icons from '@/components/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
-const baseURL= process.env.NEXT_PUBLIC_BASE_URL!;
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 const LiveSession = ({ session }: any) => {
     const host = session?.participants?.find((participant: any) => participant?.host)?.user;
     const otherParticipantsCount = session?.participants?.filter((participant: any) => !participant?.host)?.length;
@@ -19,11 +19,12 @@ const LiveSession = ({ session }: any) => {
 
             <Link href={`${baseURL}/sessions/${session?.id}`}>
                 {session?.banner !== "" &&
-                       <Image src={"/placeholder-banner-image.png"} width={510} height={240} alt='' className='mb-2' />
+                    <Image src={"/placeholder-banner-image.png"} width={510} height={240} alt='' className='mb-2' />
                 }
 
+                <div className='text-[14px] md:text-[16px] font-[500] mb-1'>{session?.title}</div>
                 <div className="flex justify-between gap-x-2">
-                    <div className='text-[12px] md:text-[14px]'>{session?.description}</div>
+                    <div className='text-[12px] md:text-[14px]'>{session?.subHeading}</div>
                     {session?.eventImage !== "" &&
                         <Image src={"/placeholder-session-image.png"} width={108} height={60} alt='' />
                     }

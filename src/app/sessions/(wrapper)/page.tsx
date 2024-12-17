@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = 'force-dynamic';
 import SessionTabs from "@/components/SessionTabs";
-import LiveSession from "./cards/LiveSession";
-import ScheduledSession from "./cards/ScheduledSession";
-import Image from "next/image";
+import LiveSession from "@/components/session-cards/LiveSession";
+import PastSession from "@/components/session-cards/PastSession";
+import ScheduledSession from "@/components/session-cards/ScheduledSession";
 import { sessions } from "@/lib/const";
-import PastSession from "./cards/PastSession";
+import Image from "next/image";
+
 
 export default async function Sessions({ searchParams }: { searchParams: any }) {
   const { tab } = await searchParams;
