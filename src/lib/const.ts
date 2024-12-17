@@ -1,6 +1,6 @@
 export const sessions = [
   {
-    id: "jhgfdsdfghjklkjhgfdsdfghjkl",
+    id: "session_1234",
     type: 'live',
     title: "Session Heading",
     subHeading: "How to ask for a promotion and what you can do to be better at communicating?",
@@ -29,7 +29,7 @@ export const sessions = [
     ]
   },
   {
-    id: "jhgfddsdfghjklsdfghjklkjhgf",
+    id: "session_2345",
     type: 'live',
     title: "Session Heading2",
     subHeading: "How to ask for a promotion and what you can do to be better at communicating?",
@@ -60,7 +60,7 @@ export const sessions = [
   {
     title: "Session Heading3",
 
-    id: "sdfghjklkjhgfjhgfddsdfghjkl",
+    id: "session_3456",
     type: 'scheduled',
     scheduledDate: "15/12/2024 12:00pm",
     subHeading: "How to ask for a promotion and what you can do to be better at communicating?",
@@ -89,7 +89,7 @@ export const sessions = [
     ]
   },
   {
-    id: "sdfjhgfddsdfghjklfghjklkjhg",
+    id: "session_4567",
     title: "Session Heading4",
 
     type: 'finished',
