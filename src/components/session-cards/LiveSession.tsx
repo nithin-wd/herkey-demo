@@ -47,7 +47,7 @@ const LiveSession = ({ session }: any) => {
                         </div>
                     </div>
                 </div>
-                <button className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite'>Join</button>
+                <Link href={`${baseURL}/sessions/${session?.id}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
             </div>
         </div>
     )
