@@ -4,8 +4,7 @@ import { RemoteUser } from 'agora-rtc-react'
 import { MicOff } from 'lucide-react'
 import React, { useMemo } from 'react'
 
-const AttendeeCard = ({ user }: any) => {
-    console.log({userData:user})
+const AttendeeCard = ({ user,herkeyUser }: any) => {
     const userMicOff = useMemo(() => user?._audio_muted_, [user?._audio_muted_]);
     const userCameraOff = useMemo(() => user?._video_muted_, [user?._video_muted_]);
     return (
@@ -21,13 +20,13 @@ const AttendeeCard = ({ user }: any) => {
                     "hidden": !userCameraOff
                 })}>
 
-                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">A</div>
+                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{herkeyUser.user?.first_name?.charAt(0)}</div>
 
                 </div>
                 {userMicOff && <span className="absolute text-[12px] top-2 right-2 h-[20px] w-[20px] rounded-full bg-lightBurgundy flex justify-center items-center">
                     <MicOff className="text-burgundy scale-[0.6]" />
                 </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-2 left-2">{user.uid}</span>
+                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-2 left-2">{`${herkeyUser.user?.first_name} ${herkeyUser.user?.last_name}`}</span>
             </RemoteUser>
         </div>
     )

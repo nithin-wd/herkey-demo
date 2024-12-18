@@ -44,6 +44,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
+const currentParticipants=currentSession?.attributes?.participants
+
     if (!isConnected) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
@@ -81,7 +83,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
             </LocalUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteUsers.map((user: any) => (
-                    <AttendeeCard key={user?.uid} user={user} />
+                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant:any)=>participant?.user_id===user?.uid)}/>
                 ))}
             </div>
 

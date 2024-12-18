@@ -46,6 +46,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
         router.push(`/sessions/${sessionId}`);
     }
     const remoteHost: any = remoteUsers?.find(remoteUser => remoteUser?.uid === hostUID);
+    const herKeyHost: any = currentSession?.attributes?.participants?.find((participant:any) => participant?.user_id === hostUID);
     const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
 
@@ -81,7 +82,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
                     "hidden": cameraOn
                 })}>
-                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">A</div>
+                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
 
                 </div>
                 {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
@@ -98,13 +99,13 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
                     "hidden": !remoteHostCameraOff
                 })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">H</div>
+                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{herKeyHost?.user?.first_name?.charAt(0)}</div>
 
                 </div>
                 {remoteHostMicOff && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
                     <MicOff className="text-burgundy scale-[0.8]" />
                 </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${herKeyHost?.user?.first_name} ${herKeyHost?.user?.last_name}`}</span>
             </RemoteUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteParticipants.map((user: any) => (
