@@ -1,7 +1,7 @@
-import Image from 'next/image'
-import React from 'react'
-import Icons from './icons'
 import { cn } from '@/lib/utils'
+import Icons from './icons'
+import Herkey from './svgx/Herkey'
+import UserPopup from './UserPopup';
 const Header = () => {
   const hasNewNotification = true;
   const hasNewMessage = false
@@ -9,7 +9,7 @@ const Header = () => {
   return (
     <>
       <header className='container bg-burgundy h-[64px] grid-cols-[280px_auto_280px] gap-x-1 items-center hidden md:grid'>
-        <Image src={"/herkey-logo.svg"} alt="logo" width={89} height={28.48} />
+        <Herkey className='text-pureWhite' />
         <input type="text" placeholder='Search' className='bg-pureWhite rounded-[12px] px-4 py-2 w-[350px] h-[40px] text-black' />
         <div className='flex items-center gap-4'>
           <div className='text-white flex flex-col items-center'>
@@ -28,7 +28,7 @@ const Header = () => {
             </div>
             <div className='text-[12px]'>Notifications</div>
           </div>
-          <p className='text-white bg-[#FFFFFF14] h-[32px] w-[32px] rounded-[12px] flex justify-center items-center'>me</p>
+          <UserPopup />
         </div>
       </header>
 

@@ -1,8 +1,8 @@
-// import { UN_AUTH_POST } from "@/app/actions-server";
+import { UN_AUTH_POST } from "@/app/actions-server";
 import dayjs from "dayjs";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const authOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -11,32 +11,26 @@ const authOptions = {
 
       async authorize(credentials: any) {
         try {
-          const { email, password } = credentials as {
-            email: string;
+          const { username, password } = credentials as {
+            username: string;
             password: string;
           };
-          const payload = { email, password };
-          console.log({ payload })
-          // const res = await UN_AUTH_POST(`${baseURL}/api/users/login`, payload);
-          const expirationFromNow = dayjs().add(1, "day").toISOString();
-          
+          const payload = { username, password };
+          const res = await UN_AUTH_POST(`${baseURL}/api/token/`, payload);
           const endOfDay = dayjs().endOf("day").toISOString();
           const user = {
-            name: "Nithin R Krishnan",
-            email: "nithin@webdura.tech",
-            accessToken: "khsHdjbsnjedhbzdjbsjfbjhbsjchbsjhbjscbjbscjhbcsjhd",
-            expires: dayjs(expirationFromNow).isBefore(dayjs(endOfDay))
-              ? expirationFromNow
-              : endOfDay,
-            id: "Nithin1234",
+            name: "Test User",
+            email: "testuser@webdura.tech",
+            accessToken: res?.data?.access,
+            expires: endOfDay,
+            id: username,
             role: "ADMIN",
           };
+
           return user;
         } catch (error: any) {
           if (error.errorCode === 400) throw new Error("InvalidCredentials");
-          if (error.message.includes("Invalid body"))
-            throw new Error("InvalidBody");
-          throw new Error(error?.message);
+          throw new Error(error?.detail);
         }
       },
     }),
@@ -69,7 +63,7 @@ const authOptions = {
 
   pages: {
     signIn: "/auth/login",
-    error: "/auth/error",
+    error: "/auth/login",
     signOut: "/auth/login",
   },
 };

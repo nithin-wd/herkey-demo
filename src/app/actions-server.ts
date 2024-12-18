@@ -65,14 +65,16 @@ export const UN_AUTH_POST = async (url: string, payload: any) => {
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload),
       next: { revalidate: 0 },
     });
     console.log("SUCCESS", "UN_AUTH_POST", url);
     if (!res.ok) {
-      const error = await res.json();
+      const errorArray = await res.json();
+      const error = errorArray?.errors?.[0];
+      console.log({ errorArray, error })
       throw { ...error, errorCode: res.status };
     }
     return res.json();
@@ -80,6 +82,37 @@ export const UN_AUTH_POST = async (url: string, payload: any) => {
   } catch (error) {
     console.log({ error });
     console.log("FAILED", "UN_AUTH_POST", url);
+    throw error;
+  }
+};
+export const AUTH_POST = async (url: string, payload: any) => {
+  console.log("POST", url);
+  try {
+    const session: any = await getServerSession(authOptions);
+    if (!session?.accessToken) {
+      return "No session found";
+    }
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      body: JSON.stringify(payload),
+      next: { revalidate: 0 },
+    });
+    console.log("SUCCESS", "AUTH_POST", url);
+    if (!res.ok) {
+      const errorArray = await res.json();
+      const error = errorArray?.errors?.[0];
+      console.log({ errorArray, error })
+      throw { ...error, errorCode: res.status };
+    }
+    return res.json();
+
+  } catch (error) {
+    console.log({ error });
+    console.log("FAILED", "AUTH_POST", url);
     throw error;
   }
 };

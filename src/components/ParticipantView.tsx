@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
@@ -8,6 +8,7 @@ import {
     useRemoteUsers,
     useJoin,
     usePublish,
+    RemoteUser,
     LocalUser,
 } from "agora-rtc-react";
 import { cn } from "@/lib/utils";
@@ -15,8 +16,8 @@ import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any;}) => {
-    const router = useRouter()
+const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; hostUID: number }) => {
+    const router = useRouter();
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
@@ -44,6 +45,12 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
+    const remoteHost: any = remoteUsers?.find(remoteUser => remoteUser?.uid === hostUID);
+    const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
+    const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
+
+    const remoteParticipants = remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID);
+    // Display "Connecting..." message while not connected
     if (!isConnected) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
@@ -58,20 +65,23 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     }
     return <div className="grid grid-rows-[60px_auto_60px] h-screen w-screen p-4 gap-y-2">
         <div className="text-lightBurgundy text-[28px] font-[500] flex items-center">{currentSession?.attributes?.title}</div>
-        <div className={cn("grid grid-cols-1 grid-rows-1", {
-            "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsers?.length >= 1
+        <div className={cn("relative grid grid-cols-1 grid-rows-1", {
+            "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteParticipants?.length >= 1
         })}>
+            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden",{
+                "block":cameraOn
+            })}>
             <LocalUser
                 cameraOn={cameraOn}
                 micOn={micOn}
                 videoTrack={localCameraTrack}
-                className="rounded-xl relative"
+                className="rounded-xl relative z-50 shadow-lg"
 
             >
                 <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
                     "hidden": cameraOn
                 })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">H</div>
+                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">A</div>
 
                 </div>
                 {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
@@ -79,8 +89,25 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 </span>}
                 <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
             </LocalUser>
+            </div>
+            <RemoteUser
+                user={remoteHost}
+                className="rounded-xl relative"
+
+            >
+                <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                    "hidden": !remoteHostCameraOff
+                })}>
+                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">H</div>
+
+                </div>
+                {remoteHostMicOff && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                    <MicOff className="text-burgundy scale-[0.8]" />
+                </span>}
+                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+            </RemoteUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
-                {remoteUsers.map((user: any) => (
+                {remoteParticipants.map((user: any) => (
                     <AttendeeCard key={user?.uid} user={user} />
                 ))}
             </div>
@@ -140,4 +167,4 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
 
 };
 
-export default HostView;
+export default ParticipantView;

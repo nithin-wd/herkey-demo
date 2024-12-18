@@ -8,7 +8,6 @@ const AttendeeCard = ({ user }: any) => {
     console.log({userData:user})
     const userMicOff = useMemo(() => user?._audio_muted_, [user?._audio_muted_]);
     const userCameraOff = useMemo(() => user?._video_muted_, [user?._video_muted_]);
-    console.log({ userMedia: { userCameraOff, userMicOff } })
     return (
         <div
             className="flex flex-col items-center justify-center w-full h-full max-h-[112px]"
