@@ -37,25 +37,49 @@ const getAgoraToken = async (event_id: string) => {
     throw error
   }
 }
+
+// const addUserToSession = async (sessionId: string, uid: number) => {
+//   try {
+
+//     const url = new URL(`${baseAPIURL}/api/event-participants/`);
+//     const payload = {
+//       "event_id": sessionId,
+//       "user_id": uid,
+//       "type": "PARTICIPANT",
+//       "active": true
+//     };
+//     await AUTH_POST(url.toString(), payload)
+
+//   } catch (error) {
+//     throw error
+//   }
+// }
 export default async function Join({
   params,
 }: {
   params: any;
 }) {
-  const sessionId = await params.sessionId;
-
-  const currentSession = await getSession(sessionId);
-  const agoraSession = await getAgoraToken(sessionId)
-  const token = agoraSession.token;
-  const UID = agoraSession.uid;
-  const currentUser = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === UID);
-  const isHost = currentUser?.type === "HOST"
-  const hostUID = currentSession?.attributes?.participants?.find((participant: any) => participant?.type === "HOST")?.user_id;
-  return (
-    <AgoraHostProvider>
-      {isHost ?
-        <HostView sessionId={sessionId} token={token} UID={UID} currentSession={currentSession} currentUser={currentUser} /> :
-        <ParticipantView sessionId={sessionId} token={token} UID={UID} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} />}
-    </AgoraHostProvider>
-  );
+  try {
+    const urlParams = await params;
+    const sessionId = urlParams.sessionId;
+    const currentSession = await getSession(sessionId);
+    const agoraSession = await getAgoraToken(sessionId)
+    const token = agoraSession.token;
+    const UID = agoraSession.uid;
+    const currentUser = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === UID)??{};
+    // if (!currentUser) await addUserToSession(sessionId, UID)
+    const isHost = currentUser?.type === "HOST"
+    const hostUID = currentSession?.attributes?.participants?.find((participant: any) => participant?.type === "HOST")?.user_id;
+    return (
+      <AgoraHostProvider>
+        {isHost ?
+          <HostView sessionId={sessionId} token={token} UID={UID} currentSession={currentSession} currentUser={currentUser} /> :
+          <ParticipantView sessionId={sessionId} token={token} UID={UID} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} />}
+      </AgoraHostProvider>
+    );
+  } catch (_error: any) {
+    return <div className="h-screen w-screen flex flex-col justify-center items-center">
+      <div>Access Denied</div>
+    </div>
+  }
 }
