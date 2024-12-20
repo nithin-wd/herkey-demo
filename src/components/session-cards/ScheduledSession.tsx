@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import InterestButton from '../InterestButton';
+import dayjs from 'dayjs';
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
@@ -21,7 +22,7 @@ const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
         <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
                 <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
-                    <div className='text-blackBerry text-[14px]'>{session?.attributes?.scheduled_date}</div>
+                <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(session?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
                 </div>
                 <Icons.Share />
             </div>
