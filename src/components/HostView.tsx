@@ -61,8 +61,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
 
     // Publish local tracks
-    const trackToBePublished = useMemo(() => screenShare ? [screenMedia.audio ?? localMicrophoneTrack, screenMedia.video,] : [localMicrophoneTrack, localCameraTrack], [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video, screenShare])
-    usePublish(trackToBePublished, screenShare || cameraOn || micOn);
+    usePublish([screenMedia.audio ?? localMicrophoneTrack, screenMedia.video], screenShare);
+    usePublish([localMicrophoneTrack, localCameraTrack], !screenShare);
     useEffect(() => {
         if (localMicrophoneTrack)
             localMicrophoneTrack.setEnabled(micOn)
