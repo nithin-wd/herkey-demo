@@ -31,7 +31,7 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
   return (
     <>
       <SessionTabs activeTab={tab} />
-      <div className="bg-pureWhite px-2 md:px-[20px] font-[500] text-[16px]">Live</div>
+      {/* <div className="bg-pureWhite px-2 md:px-[20px] font-[500] text-[16px]">Live</div> */}
       <div className="flex flex-col gap-y-[2px] relative mb-[2px]">
         {sessions?.map((session: any) =>
           <CardSwitcher key={session?.id} session={session} />

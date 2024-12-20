@@ -45,10 +45,10 @@ const PastSession = ({ session }: { session: HerkeySession }) => {
                     <div>
                         <div className='font-[500] text-[12px] md:text-[16px]'>{`${host?.first_name} ${host?.last_name}`}</div>
                         <div className='flex gap-x-2 flex-col md:flex-row md:items-center'>
-                            <span className='font-[400] text-[12px] md:text-[14px] text-darkGray'>{host?.position}</span>
+                            <span className='font-[400] text-[12px] md:text-[14px] text-darkGray'>{host?.position ?? "Position"}</span>
                             <span className='font-[500] text-[10px] md:text-[12px] text-burgundy flex items-center gap-x-1'>
                                 <Icons.GraduateHat />
-                                {host?.level}</span>
+                                {host?.level ?? "Starter"}</span>
                         </div>
                     </div>
                 </div>
