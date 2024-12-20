@@ -55,14 +55,13 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         }
     }, [screenTrack, screenShare])
 
-    screenMedia.video?.on("track-ended", ()=>setShareScreen(false));
+    screenMedia.video?.on("track-ended", () => setShareScreen(false));
     // const screenVideo=screenShare?.find((media:any)=>media?.trackMediaType==="video"    )
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
 
     // Publish local tracks
-    const trackToBePublished = useMemo(() => [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video]?.filter(track => track), [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video,])
-    console.log({ trackToBePublished:screenData })
+    const trackToBePublished = useMemo(() => screenShare ? [screenMedia.audio ?? localMicrophoneTrack, screenMedia.video,] : [localMicrophoneTrack, localCameraTrack], [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video, screenShare])
     usePublish(trackToBePublished, screenShare || cameraOn || micOn);
     useEffect(() => {
         if (localMicrophoneTrack)
@@ -148,11 +147,11 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 >
                     {screenShare ?
                         <div title="Turn off video">
-                         <ScreenShareOff/>
+                            <ScreenShareOff />
                         </div>
                         :
                         <div title="Turn on video">
-                          <ScreenShare/>
+                            <ScreenShare />
 
                         </div>
                     }
