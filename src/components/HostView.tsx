@@ -194,11 +194,11 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 </button>
                 <button
                     className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
-                        "border border-lightBurgundy bg-burgundy text-lightBurgundy": screenShare
+                        "border border-lightBurgundy bg-burgundy text-lightBurgundy": !screenShare
                     })}
                     onClick={() => screenShare ? handleCloseScreenShare() : setShareScreen(true)}
                 >
-                    {screenShare ?
+                    {!screenShare ?
                         <div title="Turn off video">
                             <ScreenShareOff />
                         </div>
