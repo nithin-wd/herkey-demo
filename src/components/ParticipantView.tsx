@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
@@ -33,12 +33,15 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     // Manage microphone and camera states
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
-    const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
+    const { localMicrophoneTrack }: any = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
-
     // Publish local tracks
     usePublish([localMicrophoneTrack, localCameraTrack]);
-
+    useEffect(() => {
+        if (localMicrophoneTrack)
+            localMicrophoneTrack.setEnabled(micOn)
+    }, [micOn, localMicrophoneTrack])
+    
     // Get remote users
     const remoteUsers = useRemoteUsers();
     const handleLeaveMeeting = () => {
@@ -46,7 +49,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
         router.push(`/sessions/${sessionId}`);
     }
     const remoteHost: any = remoteUsers?.find(remoteUser => remoteUser?.uid === hostUID);
-    const herKeyHost: any = currentSession?.attributes?.participants?.find((participant:any) => participant?.user_id === hostUID);
+    const herKeyHost: any = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === hostUID);
     const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
 
@@ -69,27 +72,27 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
         <div className={cn("relative grid grid-cols-1 grid-rows-1", {
             "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteParticipants?.length >= 1
         })}>
-            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden",{
-                "block":cameraOn
+            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden", {
+                "block": cameraOn
             })}>
-            <LocalUser
-                cameraOn={cameraOn}
-                micOn={micOn}
-                videoTrack={localCameraTrack}
-                className="rounded-xl relative z-50 shadow-lg"
+                <LocalUser
+                    cameraOn={cameraOn}
+                    micOn={micOn}
+                    videoTrack={localCameraTrack}
+                    className="rounded-xl relative z-50 shadow-lg"
 
-            >
-                <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                    "hidden": cameraOn
-                })}>
-                    <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": cameraOn
+                    })}>
+                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
 
-                </div>
-                {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                    <MicOff className="text-burgundy scale-[0.8]" />
-                </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-            </LocalUser>
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser>
             </div>
             <RemoteUser
                 user={remoteHost}

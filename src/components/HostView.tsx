@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
@@ -15,7 +15,7 @@ import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any;}) => {
+const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
     const router = useRouter()
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
@@ -37,14 +37,17 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
 
     // Publish local tracks
     usePublish([localMicrophoneTrack, localCameraTrack]);
-
+    useEffect(() => {
+        if (localMicrophoneTrack)
+            localMicrophoneTrack.setEnabled(micOn)
+    }, [micOn, localMicrophoneTrack])
     // Get remote users
     const remoteUsers = useRemoteUsers();
     const handleLeaveMeeting = () => {
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-const currentParticipants=currentSession?.attributes?.participants
+    const currentParticipants = currentSession?.attributes?.participants
 
     if (!isConnected) {
         return (
@@ -73,7 +76,7 @@ const currentParticipants=currentSession?.attributes?.participants
                 <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
                     "hidden": cameraOn
                 })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">H</div>
+                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
 
                 </div>
                 {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
@@ -83,7 +86,7 @@ const currentParticipants=currentSession?.attributes?.participants
             </LocalUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteUsers.map((user: any) => (
-                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant:any)=>participant?.user_id===user?.uid)}/>
+                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
                 ))}
             </div>
 

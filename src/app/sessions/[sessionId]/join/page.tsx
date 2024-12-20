@@ -40,19 +40,19 @@ const getAgoraToken = async (event_id: string) => {
   }
 }
 
-const addUserToSession = async (sessionId: string, uid: number) => {
+const addUserToSession = async (sessionId: string) => {
   try {
 
     const url = new URL(`${baseAPIURL}/api/event-participants/`);
     const payload = {
       "event_id": sessionId,
-      "user_id": uid,
       "type": "PARTICIPANT",
       "active": true
     };
     await AUTH_POST(url.toString(), payload)
 
   } catch (error) {
+    console.log({pp:error})
     throw error
   }
 }
@@ -67,8 +67,8 @@ export default async function Join({
     const sessionId = urlParams.sessionId;
     const currentSession = await getSession(sessionId);
 
-    const currentUser = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === session?.user?.id)??{};
-    if (!currentUser) await addUserToSession(sessionId, session?.user?.id)
+    const currentUser = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === session?.user?.id);
+    if (!currentUser) await addUserToSession(sessionId)
     const isHost = currentUser?.type === "HOST"
     const hostUID = currentSession?.attributes?.participants?.find((participant: any) => participant?.type === "HOST")?.user_id;
  
