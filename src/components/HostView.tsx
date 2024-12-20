@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
@@ -9,14 +9,16 @@ import {
     useJoin,
     usePublish,
     LocalUser,
+    useLocalScreenTrack,
 } from "agora-rtc-react";
 import { cn } from "@/lib/utils";
-import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } from "lucide-react";
 import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
 
 const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
     const router = useRouter()
+
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
@@ -32,11 +34,36 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     // Manage microphone and camera states
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
+    const [screenShare, setShareScreen] = useState(false);
+    const screenData: any = useLocalScreenTrack(screenShare, {
+        encoderConfig: "1080p_1",
+        // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
+        optimizationMode: "detail"
+    }, "auto");
+    const { screenTrack } = screenData;
+    const screenMedia = useMemo(() => {
+        if (!screenShare) return {
+            video: null, audio: null
+        }
+        if (Array.isArray(screenTrack)) return {
+            audio: screenTrack?.find(track => track?.trackMediaType === 'audio'),
+            video: screenTrack?.find(track => track?.trackMediaType === 'video')
+        }
+        else return {
+            video: screenTrack,
+            audio: null
+        }
+    }, [screenTrack, screenShare])
+
+    screenMedia.video?.on("track-ended", ()=>setShareScreen(false));
+    // const screenVideo=screenShare?.find((media:any)=>media?.trackMediaType==="video"    )
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
 
     // Publish local tracks
-    usePublish([localMicrophoneTrack, localCameraTrack]);
+    const trackToBePublished = useMemo(() => [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video]?.filter(track => track), [localMicrophoneTrack, screenMedia.audio, localCameraTrack, screenMedia.video,])
+    console.log({ trackToBePublished:screenData })
+    usePublish(trackToBePublished, screenShare || cameraOn || micOn);
     useEffect(() => {
         if (localMicrophoneTrack)
             localMicrophoneTrack.setEnabled(micOn)
@@ -109,6 +136,23 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                         :
                         <div title="Turn on mic">
                             <Mic />
+
+                        </div>
+                    }
+                </button>
+                <button
+                    className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
+                        "border border-lightBurgundy bg-burgundy text-lightBurgundy": screenShare
+                    })}
+                    onClick={() => setShareScreen((prev) => !prev)}
+                >
+                    {screenShare ?
+                        <div title="Turn off video">
+                         <ScreenShareOff/>
+                        </div>
+                        :
+                        <div title="Turn on video">
+                          <ScreenShare/>
 
                         </div>
                     }
