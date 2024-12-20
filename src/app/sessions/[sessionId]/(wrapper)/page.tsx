@@ -2,9 +2,12 @@
 import { AUTH_GET } from '@/app/actions-server';
 import { metadata as rootMetaData } from "@/app/layout";
 import Icons from '@/components/icons';
-import { HerkeySession } from '@/type';
+import InterestButton from '@/components/InterestButton';
+import authOptions from '@/lib/options';
+import { HerkeyParticipant, HerkeySession } from '@/type';
 import dayjs from 'dayjs';
 import { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
 import Link from 'next/link';
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
@@ -37,9 +40,16 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
 const SessionDetails = async ({ params }: { params: any }) => {
     const { sessionId } = await params;
+    const nextSession = await getServerSession(authOptions);
+    const userId = nextSession?.user?.id
+    
+    
     const currentSession: HerkeySession = await getSession(sessionId);
+    const host = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
     const bannerURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "BANNER")?.signed_url;
-    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT")?.signed_url;
+    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
+    const isHost = host?.id === userId;
+
     return (
         <div className='bg-pureWhite p-2 md:p-[20px] flex flex-col gap-y-4'>
             <div className='flex items-center justify-between'>
@@ -74,8 +84,11 @@ const SessionDetails = async ({ params }: { params: any }) => {
             <div className='flex justify-between items-center'>
 
                 <button className='text-burgundy font-[500] w-fit'>Add to calendar</button>
-                <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
-
+                {isHost ?
+                    <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
+                    :
+                    <InterestButton sessionId={sessionId}/>
+                }
             </div>
             <div>{`Interested Participants (${currentSession?.attributes?.participants?.length})`}</div>
             <div>{currentSession?.attributes?.participants?.map((participant) => {

@@ -85,7 +85,7 @@ export const UN_AUTH_POST = async (url: string, payload: any) => {
     throw error;
   }
 };
-export const AUTH_POST = async (url: string, payload: any) => {
+export const AUTH_POST = async (url: string, payload: any, revalidateTag?: string) => {
   console.log("POST", url);
   try {
     const session: any = await getServerSession(authOptions);
@@ -102,6 +102,7 @@ export const AUTH_POST = async (url: string, payload: any) => {
       next: { revalidate: 0 },
     });
     console.log("SUCCESS", "AUTH_POST", url);
+    if (revalidateTag) await handleRevalidateTag(revalidateTag);
     if (!res.ok) {
       const errorArray = await res.json();
       const error = errorArray?.errors?.[0];

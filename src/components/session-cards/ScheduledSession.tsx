@@ -1,15 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Icons from '@/components/icons';
+import authOptions from '@/lib/options';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react'
+import InterestButton from '../InterestButton';
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
-const ScheduledSession = ({ session }: { session: HerkeySession }) => {
+
+const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
+    const nextSession = await getServerSession(authOptions);
+    const userId = nextSession?.user?.id
     const host = session?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
     const otherParticipantsCount = session?.attributes?.participants?.filter((participant: HerkeyParticipant) => participant?.type !== "HOST")?.length;
     const bannerURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "BANNER")?.signed_url;
-    const eventImageURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "EVENT")?.signed_url;
+    const eventImageURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
+    const isHost = host?.id === userId;
+
     return (
         <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
@@ -53,7 +60,11 @@ const ScheduledSession = ({ session }: { session: HerkeySession }) => {
                         </div>
                     </div>
                 </div>
-                <button className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite'>Interested</button>
+                {isHost ?
+                    <Link href={`${baseURL}/sessions/${session?.id}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
+                    :
+                    <InterestButton sessionId={session?.id} />
+                }
             </div>
         </div>
     )

@@ -33,7 +33,7 @@ interface HerkeyAttachment {
     "attachment_cloud_id": string,
     "event": string,
     "event_id": string,
-    "type": "BANNER" | "EVENT",
+    "type": "BANNER" | "EVENT_IMAGE",
     "active": boolean,
     "created": string,
     "modified": string,
@@ -46,7 +46,7 @@ interface HerkeySession {
     "attributes": {
         "title": string,
         "description": string,
-        "type": "SCHEDULED" | "LIVE" | "PAST",
+        "type": "SCHEDULED" | "LIVE" | "COMPLETED",
         "scheduled_date": string,
         "created": string,
         "modified": string,

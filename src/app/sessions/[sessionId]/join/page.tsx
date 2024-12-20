@@ -45,7 +45,7 @@ const addUserToSession = async (sessionId: string) => {
 
     const url = new URL(`${baseAPIURL}/api/event-participants/`);
     const payload = {
-      "event_id": sessionId,
+      "event": sessionId,
       "type": "PARTICIPANT",
       "active": true
     };
