@@ -16,7 +16,6 @@ const baseAPIURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 const getSession = async (id: string) => {
   try {
-
     const url = new URL(`${baseAPIURL}/api/events/${id}/`);
     const sessions = await AUTH_GET(url.toString(), {
       revalidate: 36000,

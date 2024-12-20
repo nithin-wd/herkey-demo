@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
+    LocalUser,
+    useIsConnected,
+    useJoin,
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
-    useIsConnected,
-    useRemoteUsers,
-    useJoin,
-    usePublish,
-    LocalUser,
     useLocalScreenTrack,
+    usePublish,
+    useRemoteUsers
 } from "agora-rtc-react";
-import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } from "lucide-react";
-import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import AttendeeCard from "./AttendeeCard";
 
 const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
     const router = useRouter()
@@ -36,7 +36,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     const [cameraOn, setCamera] = useState(false);
     const [screenShare, setShareScreen] = useState(false);
     const screenData: any = useLocalScreenTrack(screenShare, {
-        encoderConfig: "1080p_1",
+        encoderConfig: "720p_1",
         // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
         optimizationMode: "detail"
     }, "auto");
@@ -53,19 +53,26 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
             video: screenTrack,
             audio: null
         }
-    }, [screenTrack, screenShare])
+    }, [screenTrack, screenShare]);
 
-    screenMedia.video?.on("track-ended", () => setShareScreen(false));
+    const handleCloseScreenShare = () => {
+        // if (screenMedia.video) screenMedia.video.close();
+        // if (screenMedia.audio) screenMedia.audio.close();
+        setShareScreen(false);
+    }
+    screenMedia.video?.on("track-ended", () => handleCloseScreenShare());
+
     // const screenVideo=screenShare?.find((media:any)=>media?.trackMediaType==="video"    )
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
 
     // Publish local tracks
-    usePublish([screenMedia.audio ?? localMicrophoneTrack, screenMedia.video], screenShare);
-    usePublish([localMicrophoneTrack, localCameraTrack], !screenShare);
+    usePublish([screenMedia.audio ?? localMicrophoneTrack, screenMedia.video ?? localCameraTrack]);
+
+
     useEffect(() => {
         if (localMicrophoneTrack)
-            localMicrophoneTrack.setEnabled(micOn)
+            localMicrophoneTrack.setEnabled(micOn);
     }, [micOn, localMicrophoneTrack])
     // Get remote users
     const remoteUsers = useRemoteUsers();
@@ -75,6 +82,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     }
     const currentParticipants = currentSession?.attributes?.participants
 
+
+    
     if (!isConnected) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
@@ -89,27 +98,69 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     }
     return <div className="grid grid-rows-[60px_auto_60px] h-screen w-screen p-4 gap-y-2">
         <div className="text-lightBurgundy text-[28px] font-[500] flex items-center">{currentSession?.attributes?.title}</div>
-        <div className={cn("grid grid-cols-1 grid-rows-1", {
+        <div className={cn("grid grid-cols-1 grid-rows-1 relative", {
             "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsers?.length >= 1
         })}>
-            <LocalUser
-                cameraOn={cameraOn}
-                micOn={micOn}
-                videoTrack={localCameraTrack}
-                className="rounded-xl relative"
+            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden", {
+                "block": screenShare
+            })}>
+                <LocalUser
+                    cameraOn={cameraOn}
+                    micOn={micOn}
+                    videoTrack={localCameraTrack}
+                    className="rounded-xl relative z-50 shadow-lg"
 
-            >
-                <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                    "hidden": cameraOn
-                })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": cameraOn
+                    })}>
+                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
 
-                </div>
-                {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                    <MicOff className="text-burgundy scale-[0.8]" />
-                </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-            </LocalUser>
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser>
+            </div>
+            {screenShare ?
+            
+                <LocalUser
+                    cameraOn={screenShare}
+                    micOn={micOn}
+                    videoTrack={screenMedia.video}
+                    className="rounded-xl relative"
+
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": screenShare
+                    })}>
+                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
+
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser> :
+                 <LocalUser
+                    cameraOn={cameraOn}
+                    micOn={micOn}
+                    videoTrack={localCameraTrack}
+                    className="rounded-xl relative"
+
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": cameraOn
+                    })}>
+                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
+
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteUsers.map((user: any) => (
                     <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
@@ -143,7 +194,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
                         "border border-lightBurgundy bg-burgundy text-lightBurgundy": screenShare
                     })}
-                    onClick={() => setShareScreen((prev) => !prev)}
+                    onClick={() => screenShare ? handleCloseScreenShare() : setShareScreen(true)}
                 >
                     {screenShare ?
                         <div title="Turn off video">
