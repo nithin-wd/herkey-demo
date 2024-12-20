@@ -8,7 +8,8 @@ import LoginForm from "./login-form";
 
 
 export default async function Home({ searchParams }: { searchParams: any }) {
-  const error = await searchParams?.error;
+  const urlSearchParams=await searchParams
+  const error = urlSearchParams?.error;
 
 
   return (<>
