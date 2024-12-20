@@ -53,6 +53,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
     const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
     const isHost = host?.id === userId;
 
+
     return (
         <div className='bg-pureWhite p-2 md:p-[20px] flex flex-col gap-y-4'>
             <div className='flex items-center justify-between'>
@@ -87,7 +88,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
             <div className='flex justify-between items-center'>
 
                 <button className='text-burgundy font-[500] w-fit'>Add to calendar</button>
-                {isHost ?
+                {(currentSession?.attributes?.type === "LIVE" || isHost) ?
                     <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
                     :
                     <InterestButton sessionId={sessionId} />
@@ -98,8 +99,8 @@ const SessionDetails = async ({ params }: { params: any }) => {
                 return <div key={participant?.id} className='flex items-center gap-x-6'>
                     <div className="relative w-[70px] flex flex-col items-center">
                         <Image src={"/placeholder-user-image.png"} width={60} height={60} alt='' className="h-[60px] w-[60px] rounded-full relative z-20" />
-                        <div className={cn('absolute top-[40px] z-20  hidden justify-center items-center rounded-[4px]',{
-                            "flex":participant.type === "HOST"
+                        <div className={cn('absolute top-[40px] z-20  hidden justify-center items-center rounded-[4px]', {
+                            "flex": participant.type === "HOST"
                         })}>
                             <Badge />
                         </div>
@@ -119,7 +120,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
                             </div>
                         </div>
                         <Link href="#" className='min-w-[112px] md:min-w-[120px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Follow</Link>
-                  
+
                     </div>
                 </div>
             })}</div>
