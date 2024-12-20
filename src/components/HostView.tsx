@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
@@ -14,8 +14,17 @@ import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
+import ChatView from "./ChatView";
+import AC from "agora-chat";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any;}) => {
+const appKey = process.env.NEXT_PUBLIC_AGORA_APP_CHAT_KEY!;
+// const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
+const chatToken = process.env.NEXT_PUBLIC_AGORA_APP_CHAT_TOKEN!;
+
+
+
+const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
+    const chatClient = useRef<any>(null);
     const router = useRouter()
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
@@ -44,7 +53,51 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-const currentParticipants=currentSession?.attributes?.participants
+    const currentParticipants = currentSession?.attributes?.participants
+    const createConnection = async () => {
+        console.log("dddd", "creating connection");
+        console.log("dddd", chatClient)
+        try {
+            ;
+            chatClient.current = new AC.connection({
+                appKey: appKey,
+            });
+
+
+            console.log("dddd", chatClient)
+            const options = {
+                data: {
+                    groupname: sessionId,
+                    desc: "A description of a group",
+                    members: ["user1", "user2"],
+                    // Set the type of a chat group to public. Public chat groups can be searched, and users can send join requests.
+                    public: true,
+                    // Join requests must be approved by the chat group owner or chat group admins.
+                    approval: false,
+                    // Allow chat group members to invite other users to join the chat group.
+                    allowinvites: false,
+                    // Group invitations must be confirmed by invitees.
+                    inviteNeedConfirm: true,
+                    // Set the maximum number of users that can be added to the group.
+                    maxusers: 500
+                },
+             
+            };
+            console.log({ ddddOption: options })
+            // Call createGroup to create a chat group.
+            const res = await chatClient.current.createGroup({
+                data: options,
+            });
+            console.log({ dddd: res }, "dddd")
+        } catch (error) {
+            console.log({ ddddError: error })
+        }
+    }
+    useEffect(() => {
+        createConnection()
+    }, []);
+
+   
 
     if (!isConnected) {
         return (
@@ -83,7 +136,7 @@ const currentParticipants=currentSession?.attributes?.participants
             </LocalUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteUsers.map((user: any) => (
-                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant:any)=>participant?.user_id===user?.uid)}/>
+                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
                 ))}
             </div>
 
@@ -136,7 +189,9 @@ const currentParticipants=currentSession?.attributes?.participants
                     </div>
                 </button>
             </div>
-            <div></div>
+            <div className="flex items-center justify-end">
+                <ChatView UID={UID} />
+            </div>
         </div>
     </div>
 
