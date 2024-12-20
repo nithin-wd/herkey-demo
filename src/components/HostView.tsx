@@ -15,8 +15,9 @@ import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } fro
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
+import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
+const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; }) => {
     const router = useRouter()
 
     const [calling, setCalling] = useState(true);
@@ -35,13 +36,13 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
     const [screenShare, setShareScreen] = useState(false);
-    const screenData: any = useLocalScreenTrack(screenShare, {
+    const screenData = useLocalScreenTrack(screenShare, {
         encoderConfig: "720p_1",
         // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
         optimizationMode: "detail"
     }, "auto");
     const { screenTrack } = screenData;
-    const screenMedia = useMemo(() => {
+    const screenMedia: any = useMemo(() => {
         if (!screenShare) return {
             video: null, audio: null
         }
@@ -75,15 +76,15 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
             localMicrophoneTrack.setEnabled(micOn);
     }, [micOn, localMicrophoneTrack])
     // Get remote users
-    const remoteUsers = useRemoteUsers();
+    const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
     const handleLeaveMeeting = () => {
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-    const currentParticipants = currentSession?.attributes?.participants
+    const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
 
 
-    
+
     if (!isConnected) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
@@ -124,7 +125,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 </LocalUser>
             </div>
             {screenShare ?
-            
+
                 <LocalUser
                     cameraOn={screenShare}
                     micOn={micOn}
@@ -143,7 +144,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     </span>}
                     <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
                 </LocalUser> :
-                 <LocalUser
+                <LocalUser
                     cameraOn={cameraOn}
                     micOn={micOn}
                     videoTrack={localCameraTrack}
@@ -162,9 +163,10 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
                 </LocalUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
-                {remoteUsers.map((user: any) => (
-                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
-                ))}
+                {remoteUsers.map((user) => {
+                    const herkeyUser = currentParticipants?.find((participant) => participant?.user_id === user?.uid) as HerkeyParticipant;
+                    return <AttendeeCard key={user?.uid} user={user} herkeyUser={herkeyUser ?? null} />;
+                })}
             </div>
 
         </div>

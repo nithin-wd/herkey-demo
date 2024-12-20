@@ -2,6 +2,7 @@
 import { AUTH_GET } from '@/app/actions-server';
 import { metadata as rootMetaData } from "@/app/layout";
 import Icons from '@/components/icons';
+import { HerkeySession } from '@/type';
 import dayjs from 'dayjs';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -10,7 +11,7 @@ const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const baseAPIURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
-const getSession = async (id: string) => {
+const getSession = async (id: string): Promise<HerkeySession> => {
     try {
 
         const url = new URL(`${baseAPIURL}/api/events/${id}/`);
@@ -26,7 +27,7 @@ const getSession = async (id: string) => {
 // set dynamic metadata
 export async function generateMetadata({ params }: any): Promise<Metadata> {
     const { sessionId } = await params
-    const currentSession: any = await getSession(sessionId)
+    const currentSession: HerkeySession = await getSession(sessionId)
     return {
         ...rootMetaData,
         title: currentSession.attributes?.title,
@@ -36,9 +37,9 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
 const SessionDetails = async ({ params }: { params: any }) => {
     const { sessionId } = await params;
-    const currentSession: any = await getSession(sessionId);
-    const bannerURL = currentSession?.attributes?.attachments?.find((attachment: any) => attachment?.type === "BANNER")?.signed_url;
-    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment: any) => attachment?.type === "EVENT")?.signed_url;
+    const currentSession: HerkeySession = await getSession(sessionId);
+    const bannerURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "BANNER")?.signed_url;
+    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT")?.signed_url;
     return (
         <div className='bg-pureWhite p-2 md:p-[20px] flex flex-col gap-y-4'>
             <div className='flex items-center justify-between'>
@@ -77,7 +78,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
 
             </div>
             <div>{`Interested Participants (${currentSession?.attributes?.participants?.length})`}</div>
-            <div>{currentSession?.attributes?.participants?.map((participant: any) => {
+            <div>{currentSession?.attributes?.participants?.map((participant) => {
                 return <div key={JSON.stringify(participant)}>{participant?.user?.username}</div>
             })}</div>
         </div>

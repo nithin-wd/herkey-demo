@@ -8,6 +8,7 @@ import HostView from "@/components/HostView";
 import ParticipantView from "@/components/ParticipantView";
 import authOptions from "@/lib/options";
 import AgoraHostProvider from "@/providers/AgoraHost";
+import { HerkeyParticipant } from "@/type";
 import { getServerSession } from "next-auth";
 // import ParticipantView from "@/components/ParticipantView";
 
@@ -51,7 +52,7 @@ const addUserToSession = async (sessionId: string) => {
     await AUTH_POST(url.toString(), payload)
 
   } catch (error) {
-    console.log({pp:error})
+    console.log({ pp: error })
     throw error
   }
 }
@@ -61,16 +62,16 @@ export default async function Join({
   params: any;
 }) {
   try {
-    const session: any = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
     const urlParams = await params;
     const sessionId = urlParams.sessionId;
     const currentSession = await getSession(sessionId);
 
-    const currentUser = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === session?.user?.id);
+    const currentUser = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.user_id === session?.user?.id);
     if (!currentUser) await addUserToSession(sessionId)
     const isHost = currentUser?.type === "HOST"
-    const hostUID = currentSession?.attributes?.participants?.find((participant: any) => participant?.type === "HOST")?.user_id;
- 
+    const hostUID = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user_id;
+
     const agoraSession = await getAgoraToken(sessionId)
     const token = agoraSession.token;
     return (

@@ -1,12 +1,13 @@
 // middleware.ts
-import { NextResponse } from "next/server";
+import dayjs from "dayjs"; // Import dayjs for date handling
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
-import dayjs from "dayjs"; // Import dayjs for date handling
+import { NextResponse } from "next/server";
+import { HerkeyToken } from "./type";
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone(); // Clone the URL for safe modifications
-  let token: any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  let token: HerkeyToken | null = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const isAuthPage = url.pathname.startsWith("/auth");
 
   // **Token Expiration Check**

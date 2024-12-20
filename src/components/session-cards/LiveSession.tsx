@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Icons from '@/components/icons';
+import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
-const LiveSession = ({ session }: any) => {
-    const host = session?.attributes?.participants?.find((participant: any) => participant?.type === "HOST")?.user;
-    const otherParticipantsCount = session?.attributes?.participants?.filter((participant: any) => participant?.type !== "HOST")?.length;
-    const bannerURL = session?.attributes?.attachments?.find((attachment: any) => attachment?.type === "BANNER")?.signed_url;
-    const eventImageURL = session?.attributes?.attachments?.find((attachment: any) => attachment?.type === "EVENT")?.signed_url;
-    console.log({ host })
+const LiveSession = ({ session }: {session:HerkeySession}) => {
+    const host = session?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
+    const otherParticipantsCount = session?.attributes?.participants?.filter((participant: HerkeyParticipant) => participant?.type !== "HOST")?.length;
+    const bannerURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "BANNER")?.signed_url;
+    const eventImageURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "EVENT")?.signed_url;
     return (
         <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
