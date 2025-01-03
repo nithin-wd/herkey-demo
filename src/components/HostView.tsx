@@ -1,31 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { HerkeyRemoteUser } from "@/type";
 import {
+    LocalUser,
+    useIsConnected,
+    useJoin,
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
-    useIsConnected,
-    useRemoteUsers,
-    useJoin,
+    useLocalScreenTrack,
     usePublish,
-    LocalUser,
+    useRemoteUsers
 } from "agora-rtc-react";
-import { cn } from "@/lib/utils";
-import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
-import AttendeeCard from "./AttendeeCard";
+import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import ChatView from "./ChatView";
-import AC from "agora-chat";
+import { useEffect, useMemo, useState } from "react";
+import AttendeeCard from "./AttendeeCard";
+import ChatDrawer from "./ChatDrawer";
 
-const appKey = process.env.NEXT_PUBLIC_AGORA_APP_CHAT_KEY!;
-// const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
-const chatToken = process.env.NEXT_PUBLIC_AGORA_APP_CHAT_TOKEN!;
-
-
-
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; }) => {
-    const chatClient = useRef<any>(null);
+const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string }) => {
     const router = useRouter()
+
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
@@ -41,63 +36,53 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     // Manage microphone and camera states
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
+    const [screenShare, setShareScreen] = useState(false);
+    const screenData = useLocalScreenTrack(screenShare, {
+        encoderConfig: "720p_1",
+        // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
+        optimizationMode: "detail"
+    }, "auto");
+    const { screenTrack } = screenData;
+    const screenMedia: any = useMemo(() => {
+        if (!screenShare) return {
+            video: null, audio: null
+        }
+        if (Array.isArray(screenTrack)) return {
+            audio: screenTrack?.find(track => track?.trackMediaType === 'audio'),
+            video: screenTrack?.find(track => track?.trackMediaType === 'video')
+        }
+        else return {
+            video: screenTrack,
+            audio: null
+        }
+    }, [screenTrack, screenShare]);
+    const handleCloseScreenShare = () => {
+        if (screenMedia.video) {
+            screenMedia.video._events["track-ended"] = [];
+        }
+        setShareScreen(false);
+    }
+    screenMedia.video?.on("track-ended", () => handleCloseScreenShare());
+
+    // const screenVideo=screenShare?.find((media:any)=>media?.trackMediaType==="video"    )
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
 
     // Publish local tracks
-    usePublish([localMicrophoneTrack, localCameraTrack]);
+    usePublish([screenMedia.audio ?? localMicrophoneTrack, screenMedia.video ?? localCameraTrack]);
 
+
+    useEffect(() => {
+        if (localMicrophoneTrack)
+            localMicrophoneTrack.setEnabled(micOn);
+    }, [micOn, localMicrophoneTrack])
     // Get remote users
-    const remoteUsers = useRemoteUsers();
+    const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
     const handleLeaveMeeting = () => {
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
     const currentParticipants = currentSession?.attributes?.participants
-    const createConnection = async () => {
-        console.log("dddd", "creating connection");
-        console.log("dddd", chatClient)
-        try {
-            ;
-            chatClient.current = new AC.connection({
-                appKey: appKey,
-            });
-
-
-            console.log("dddd", chatClient)
-            const options = {
-                data: {
-                    groupname: sessionId,
-                    desc: "A description of a group",
-                    members: ["user1", "user2"],
-                    // Set the type of a chat group to public. Public chat groups can be searched, and users can send join requests.
-                    public: true,
-                    // Join requests must be approved by the chat group owner or chat group admins.
-                    approval: false,
-                    // Allow chat group members to invite other users to join the chat group.
-                    allowinvites: false,
-                    // Group invitations must be confirmed by invitees.
-                    inviteNeedConfirm: true,
-                    // Set the maximum number of users that can be added to the group.
-                    maxusers: 500
-                },
-             
-            };
-            console.log({ ddddOption: options })
-            // Call createGroup to create a chat group.
-            const res = await chatClient.current.createGroup({
-                data: options,
-            });
-            console.log({ dddd: res }, "dddd")
-        } catch (error) {
-            console.log({ ddddError: error })
-        }
-    }
-    useEffect(() => {
-        createConnection()
-    }, []);
-
-   
 
     if (!isConnected) {
         return (
@@ -113,27 +98,69 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     }
     return <div className="grid grid-rows-[60px_auto_60px] h-screen w-screen p-4 gap-y-2">
         <div className="text-lightBurgundy text-[28px] font-[500] flex items-center">{currentSession?.attributes?.title}</div>
-        <div className={cn("grid grid-cols-1 grid-rows-1", {
+        <div className={cn("grid grid-cols-1 grid-rows-1 relative", {
             "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsers?.length >= 1
         })}>
-            <LocalUser
-                cameraOn={cameraOn}
-                micOn={micOn}
-                videoTrack={localCameraTrack}
-                className="rounded-xl relative"
+            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden", {
+                "block": screenShare
+            })}>
+                <LocalUser
+                    cameraOn={cameraOn}
+                    micOn={micOn}
+                    videoTrack={localCameraTrack}
+                    className="rounded-xl relative z-50 shadow-lg"
 
-            >
-                <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                    "hidden": cameraOn
-                })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">H</div>
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": cameraOn
+                    })}>
+                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
 
-                </div>
-                {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                    <MicOff className="text-burgundy scale-[0.8]" />
-                </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-            </LocalUser>
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser>
+            </div>
+            {screenShare ?
+
+                <LocalUser
+                    cameraOn={screenShare}
+                    micOn={micOn}
+                    videoTrack={screenMedia.video}
+                    className="rounded-xl relative"
+
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": screenShare
+                    })}>
+                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
+
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser> :
+                <LocalUser
+                    cameraOn={cameraOn}
+                    micOn={micOn}
+                    videoTrack={localCameraTrack}
+                    className="rounded-xl relative"
+
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": cameraOn
+                    })}>
+                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
+
+                    </div>
+                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
+                </LocalUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteUsers.map((user: any) => (
                     <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
@@ -165,6 +192,23 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 </button>
                 <button
                     className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
+                        "border border-lightBurgundy bg-burgundy text-lightBurgundy": !screenShare
+                    })}
+                    onClick={() => screenShare ? handleCloseScreenShare() : setShareScreen(true)}
+                >
+                    {!screenShare ?
+                        <div title="Turn off video">
+                            <ScreenShareOff />
+                        </div>
+                        :
+                        <div title="Turn on video">
+                            <ScreenShare />
+
+                        </div>
+                    }
+                </button>
+                <button
+                    className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
                         "border border-lightBurgundy bg-burgundy text-lightBurgundy": cameraOn
                     })}
                     onClick={() => setCamera((prev) => !prev)}
@@ -190,7 +234,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                 </button>
             </div>
             <div className="flex items-center justify-end">
-                <ChatView UID={UID} />
+                <ChatDrawer appId={appId} userId={currentUser?.user?.username} chatToken={chatToken} msChannelName={channel} />
             </div>
         </div>
     </div>

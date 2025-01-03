@@ -2,15 +2,22 @@
 import { AUTH_GET } from '@/app/actions-server';
 import { metadata as rootMetaData } from "@/app/layout";
 import Icons from '@/components/icons';
+import InterestButton from '@/components/InterestButton';
+import Badge from '@/components/svgx/Badge';
+import authOptions from '@/lib/options';
+import { cn } from '@/lib/utils';
+import { HerkeyParticipant, HerkeySession } from '@/type';
 import dayjs from 'dayjs';
 import { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const baseAPIURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
-const getSession = async (id: string) => {
+const getSession = async (id: string): Promise<HerkeySession> => {
     try {
 
         const url = new URL(`${baseAPIURL}/api/events/${id}/`);
@@ -26,7 +33,7 @@ const getSession = async (id: string) => {
 // set dynamic metadata
 export async function generateMetadata({ params }: any): Promise<Metadata> {
     const { sessionId } = await params
-    const currentSession: any = await getSession(sessionId)
+    const currentSession: HerkeySession = await getSession(sessionId)
     return {
         ...rootMetaData,
         title: currentSession.attributes?.title,
@@ -36,9 +43,17 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
 
 const SessionDetails = async ({ params }: { params: any }) => {
     const { sessionId } = await params;
-    const currentSession: any = await getSession(sessionId);
-    const bannerURL = currentSession?.attributes?.attachments?.find((attachment: any) => attachment?.type === "BANNER")?.signed_url;
-    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment: any) => attachment?.type === "EVENT")?.signed_url;
+    const nextSession = await getServerSession(authOptions);
+    const userId = nextSession?.user?.id
+
+
+    const currentSession: HerkeySession = await getSession(sessionId);
+    const host = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
+    const bannerURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "BANNER")?.signed_url;
+    const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
+    const isHost = host?.id === userId;
+
+
     return (
         <div className='bg-pureWhite p-2 md:p-[20px] flex flex-col gap-y-4'>
             <div className='flex items-center justify-between'>
@@ -73,12 +88,41 @@ const SessionDetails = async ({ params }: { params: any }) => {
             <div className='flex justify-between items-center'>
 
                 <button className='text-burgundy font-[500] w-fit'>Add to calendar</button>
-                <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
-
+                {(currentSession?.attributes?.type === "LIVE" || isHost) ?
+                    <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
+                    :
+                    <InterestButton sessionId={sessionId} />
+                }
             </div>
             <div>{`Interested Participants (${currentSession?.attributes?.participants?.length})`}</div>
-            <div>{currentSession?.attributes?.participants?.map((participant: any) => {
-                return <div key={JSON.stringify(participant)}>{participant?.user?.username}</div>
+            <div className='flex flex-col gap-y-2'>{currentSession?.attributes?.participants?.map((participant) => {
+                return <div key={participant?.id} className='flex items-center gap-x-6'>
+                    <div className="relative w-[70px] flex flex-col items-center">
+                        <Image src={"/placeholder-user-image.png"} width={60} height={60} alt='' className="h-[60px] w-[60px] rounded-full relative z-20" />
+                        <div className={cn('absolute top-[40px] z-20  hidden justify-center items-center rounded-[4px]', {
+                            "flex": participant.type === "HOST"
+                        })}>
+                            <Badge />
+                        </div>
+
+                    </div>
+                    <div className='flex items-center justify-between w-full'>
+                        <div className='flex flex-col'>
+                            <div className='flex items-center gap-x-2'>
+                                {participant.type === "HOST" && <div className='bg-pearlWhite px-2 py-1 rounded text-[12px]'>Host</div>}
+                                <div className='text-[16px] text-black font-[500]'>{`${participant?.user?.first_name} ${participant?.user?.last_name}`}</div>
+                            </div>
+                            <div className='flex gap-x-2 flex-col md:flex-row md:items-center'>
+                                <span className='font-[400] text-[12px] md:text-[14px] text-darkGray'>{host?.position ?? "Position"}</span>
+                                <span className='font-[500] text-[10px] md:text-[12px] text-burgundy flex items-center gap-x-1'>
+                                    <Icons.GraduateHat />
+                                    {host?.level ?? "Starter"}</span>
+                            </div>
+                        </div>
+                        <Link href="#" className='min-w-[112px] md:min-w-[120px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Follow</Link>
+
+                    </div>
+                </div>
             })}</div>
         </div>
     )

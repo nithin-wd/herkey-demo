@@ -1,10 +1,11 @@
 "use client"
 import { cn } from '@/lib/utils'
+import { HerkeyParticipant, HerkeyRemoteUser } from '@/type'
 import { RemoteUser } from 'agora-rtc-react'
 import { MicOff } from 'lucide-react'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 
-const AttendeeCard = ({ user,herkeyUser }: any) => {
+const AttendeeCard = ({ user, herkeyUser }: { user: HerkeyRemoteUser, herkeyUser: HerkeyParticipant }) => {
     const userMicOff = useMemo(() => user?._audio_muted_, [user?._audio_muted_]);
     const userCameraOff = useMemo(() => user?._video_muted_, [user?._video_muted_]);
     return (

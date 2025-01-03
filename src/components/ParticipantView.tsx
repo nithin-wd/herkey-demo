@@ -1,28 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
 import {
+    LocalUser,
+    RemoteUser,
+    useIsConnected,
+    useJoin,
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
-    useIsConnected,
-    useRemoteUsers,
-    useJoin,
     usePublish,
-    RemoteUser,
-    LocalUser,
+    useRemoteUsers,
 } from "agora-rtc-react";
-import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
-import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
-import ChatView from "./ChatView";
+import { useEffect, useMemo, useState } from "react";
+import AttendeeCard from "./AttendeeCard";
+import ChatDrawer from "./ChatDrawer";
 
-const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; hostUID: number }) => {
+const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID,chatToken }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number;chatToken:string }) => {
     const router = useRouter();
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
     const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
+    console.log({currentUser})
     const channel = sessionId; // Define your channel name
     // const token = process.env.NEXT_PUBLIC_AGORA_TOKEN!;
 
@@ -36,22 +38,27 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const [cameraOn, setCamera] = useState(false);
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
     const { localCameraTrack } = useLocalCameraTrack(cameraOn);
-
     // Publish local tracks
     usePublish([localMicrophoneTrack, localCameraTrack]);
+    useEffect(() => {
+        if (localMicrophoneTrack)
+            localMicrophoneTrack.setEnabled(micOn)
+    }, [micOn, localMicrophoneTrack])
 
     // Get remote users
-    const remoteUsers = useRemoteUsers();
+    const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
     const handleLeaveMeeting = () => {
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-    const remoteHost: any = remoteUsers?.find(remoteUser => remoteUser?.uid === hostUID);
-    const herKeyHost: any = currentSession?.attributes?.participants?.find((participant: any) => participant?.user_id === hostUID);
+    const remoteHost = remoteUsers?.find(remoteUser => remoteUser?.uid === hostUID);
+    const herKeyHost: HerkeyParticipant | undefined = currentSession?.attributes?.participants?.find((participant) => participant?.user_id === hostUID);
     const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
 
     const remoteParticipants = remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID);
+    const currentParticipants:HerkeyParticipant[]= currentSession?.attributes?.participants
+
     // Display "Connecting..." message while not connected
     if (!isConnected && !remoteHost) {
         return (
@@ -109,9 +116,10 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${herKeyHost?.user?.first_name} ${herKeyHost?.user?.last_name}`}</span>
             </RemoteUser>
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
-                {remoteParticipants.map((user: any) => (
-                    <AttendeeCard key={user?.uid} user={user} />
-                ))}
+                {remoteParticipants.map((user) => {
+                    const herkeyUser = currentParticipants?.find((participant) => participant?.user_id === user?.uid) as HerkeyParticipant;
+                    return <AttendeeCard key={user?.uid} user={user} herkeyUser={herkeyUser ?? null} />;
+                })}
             </div>
 
         </div>
@@ -164,7 +172,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 </button>
             </div>
             <div className="flex items-center justify-end">
-                <ChatView  UID={UID}/>
+            <ChatDrawer appId={appId} userId={currentUser?.user?.username} chatToken={chatToken} msChannelName={channel} />
             </div>
         </div>
     </div>

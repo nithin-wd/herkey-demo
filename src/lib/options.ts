@@ -8,7 +8,6 @@ const authOptions = {
   providers: [
     CredentialsProvider(<any>{
       credentials: {},
-
       async authorize(credentials: any) {
         try {
           const { username, password } = credentials as {
@@ -19,11 +18,11 @@ const authOptions = {
           const res = await UN_AUTH_POST(`${baseURL}/api/token/`, payload);
           const endOfDay = dayjs().endOf("day").toISOString();
           const user = {
-            name: "Test User",
-            email: "testuser@webdura.tech",
+            name: `${res?.data?.user?.first_name} ${res?.data?.user?.last_name}`,
+            email: res?.data?.user?.email,
             accessToken: res?.data?.access,
             expires: endOfDay,
-            id: username,
+            id: res?.data?.user?.id,
             role: "ADMIN",
           };
 

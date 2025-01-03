@@ -34,7 +34,24 @@ const handleResponse = async (res: Response) => {
   }
   return res.json();
 };
-
+export const UN_AUTH_GET = async (url: string, nextConfig?: any) => {
+  console.log("GET", url);
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: { revalidate: 0, ...nextConfig },
+    });
+    console.log("SUCCESS", "UNAUTH_GET", url);
+    return handleResponse(res);
+  } catch (error: any) {
+    console.log("FAILED", "UNAUTH_GET", url);
+    console.log({ error });
+    throw error;
+  }
+};
 export const AUTH_GET = async (url: string, nextConfig?: any) => {
   console.log("GET", url);
   try {
@@ -58,6 +75,7 @@ export const AUTH_GET = async (url: string, nextConfig?: any) => {
     throw error;
   }
 };
+
 
 export const UN_AUTH_POST = async (url: string, payload: any) => {
   console.log("POST", url);
@@ -85,7 +103,7 @@ export const UN_AUTH_POST = async (url: string, payload: any) => {
     throw error;
   }
 };
-export const AUTH_POST = async (url: string, payload: any) => {
+export const AUTH_POST = async (url: string, payload: any, revalidateTag?: string) => {
   console.log("POST", url);
   try {
     const session: any = await getServerSession(authOptions);
@@ -102,6 +120,7 @@ export const AUTH_POST = async (url: string, payload: any) => {
       next: { revalidate: 0 },
     });
     console.log("SUCCESS", "AUTH_POST", url);
+    if (revalidateTag) await handleRevalidateTag(revalidateTag);
     if (!res.ok) {
       const errorArray = await res.json();
       const error = errorArray?.errors?.[0];
