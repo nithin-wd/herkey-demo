@@ -1,28 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
 import {
+    LocalUser,
+    RemoteUser,
+    useIsConnected,
+    useJoin,
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
-    useIsConnected,
-    useRemoteUsers,
-    useJoin,
     usePublish,
-    RemoteUser,
-    LocalUser,
+    useRemoteUsers,
 } from "agora-rtc-react";
-import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
-import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
-import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
+import { useEffect, useMemo, useState } from "react";
+import AttendeeCard from "./AttendeeCard";
 
-const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number }) => {
+const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID, chatToken }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number; chatToken: string }) => {
+  console.log({chatToken})
     const router = useRouter();
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
     const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
+    console.log({ currentUser })
     const channel = sessionId; // Define your channel name
     // const token = process.env.NEXT_PUBLIC_AGORA_TOKEN!;
 
@@ -55,17 +57,17 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
 
     const remoteParticipants = remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID);
-    const currentParticipants:HerkeyParticipant[]= currentSession?.attributes?.participants
+    const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
 
     // Display "Connecting..." message while not connected
-    if (!isConnected) {
+    if (!isConnected && !remoteHost) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
                 <button
                     className={`px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700`}
                     onClick={() => setCalling(true)}
                 >
-                    Please wait initiating connection
+                    Please wait
                 </button>
             </div>
         );
@@ -169,7 +171,8 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                     </div>
                 </button>
             </div>
-            <div></div>
+            <div className="flex items-center justify-end">
+            </div>
         </div>
     </div>
 

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const dynamic = "force-dynamic"
 export const maxDuration = 60;
-;
 
 import { AUTH_GET, AUTH_POST } from "@/app/actions-server";
 import HostView from "@/components/HostView";
@@ -40,6 +39,7 @@ const getAgoraToken = async (event_id: string) => {
   }
 }
 
+
 const addUserToSession = async (sessionId: string) => {
   try {
 
@@ -72,13 +72,15 @@ export default async function Join({
     const isHost = currentUser?.type === "HOST"
     const hostUID = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user_id;
 
-    const agoraSession = await getAgoraToken(sessionId)
-    const token = agoraSession.token;
+    const agoraSession = await getAgoraToken(sessionId);
+    const token = agoraSession.rtc_token?.token;
+    const chatToken = agoraSession.rtm_token?.token;
+
     return (
       <AgoraHostProvider>
         {isHost ?
-          <HostView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} /> :
-          <ParticipantView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} />}
+          <HostView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} chatToken={chatToken} /> :
+          <ParticipantView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} chatToken={chatToken} />}
       </AgoraHostProvider>
     );
   } catch (_error: any) {

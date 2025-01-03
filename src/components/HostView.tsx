@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { HerkeyRemoteUser } from "@/type";
 import {
     LocalUser,
     useIsConnected,
@@ -15,9 +16,9 @@ import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } fro
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
-import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; }) => {
+const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string }) => {
+    console.log({chatToken})
     const router = useRouter()
 
     const [calling, setCalling] = useState(true);
@@ -55,10 +56,10 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
             audio: null
         }
     }, [screenTrack, screenShare]);
-
     const handleCloseScreenShare = () => {
-        // if (screenMedia.video) screenMedia.video.close();
-        // if (screenMedia.audio) screenMedia.audio.close();
+        if (screenMedia.video) {
+            screenMedia.video._events["track-ended"] = [];
+        }
         setShareScreen(false);
     }
     screenMedia.video?.on("track-ended", () => handleCloseScreenShare());
@@ -81,9 +82,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-    const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
-
-
+    const currentParticipants = currentSession?.attributes?.participants
 
     if (!isConnected) {
         return (
@@ -163,10 +162,9 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
                 </LocalUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
-                {remoteUsers.map((user) => {
-                    const herkeyUser = currentParticipants?.find((participant) => participant?.user_id === user?.uid) as HerkeyParticipant;
-                    return <AttendeeCard key={user?.uid} user={user} herkeyUser={herkeyUser ?? null} />;
-                })}
+                {remoteUsers.map((user: any) => (
+                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
+                ))}
             </div>
 
         </div>
@@ -235,7 +233,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     </div>
                 </button>
             </div>
-            <div></div>
+            <div className="flex items-center justify-end">
+            </div>
         </div>
     </div>
 
