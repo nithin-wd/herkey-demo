@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const dynamic = 'force-dynamic';
 import { AUTH_GET } from "@/app/actions-server";
 import SessionTabs from "@/components/SessionTabs";

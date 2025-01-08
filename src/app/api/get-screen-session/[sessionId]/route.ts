@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import Agora from "agora-access-token";
 import { NextRequest } from "next/server";

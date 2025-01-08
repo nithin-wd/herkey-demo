@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React from 'react'
 import Icons from './icons';
 import Link from 'next/link';

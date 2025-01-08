@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import Icons from '@/components/icons';
 import authOptions from '@/lib/options';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
