@@ -18,11 +18,11 @@ const nextConfig: NextConfig = {
         destination: "/sessions",
         permanent: false,
       },
-      {
-        source: "/sessions/:sessionId/join",
-        destination: "/sessions/:sessionId/join2",
-        permanent: false,
-      },
+      // {
+      //   source: "/sessions/:sessionId/join",
+      //   destination: "/sessions/:sessionId/join2",
+      //   permanent: false,
+      // },
   
     ];
   },

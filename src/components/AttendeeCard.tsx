@@ -11,10 +11,10 @@ const AttendeeCard = ({ user, herkeyUser }: { user: HerkeyRemoteUser, herkeyUser
     return (
         <div
             className="flex flex-col items-center justify-center w-full h-full max-h-[112px] min-h-[112px] border"
-           
+
         >
             <RemoteUser
-             key={user.uid}
+                key={user.uid}
                 user={user}
                 className="flex flex-col items-center justify-center w-full h-full max-h-[112px] min-h-[112px]  rounded-xl relative border border-lightBurgundy"
             >
