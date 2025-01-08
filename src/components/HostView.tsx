@@ -1,23 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { HerkeyRemoteUser } from "@/type";
 import {
-    LocalUser,
     useIsConnected,
     useJoin,
-    useLocalCameraTrack,
-    useLocalMicrophoneTrack,
     useLocalScreenTrack,
-    usePublish,
     useRemoteUsers
 } from "agora-rtc-react";
 import { LogOut, Mic, MicOff, ScreenShare, ScreenShareOff, Video, VideoOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
-import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
+import LocalUserScreenShare from "./LocalUserScreenShare";
+import LocalUserVideo from "./LocalUserVideo";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; }) => {
+const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken, screenToken }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string; screenToken: string }) => {
+    console.log({ chatToken })
     const router = useRouter()
 
     const [calling, setCalling] = useState(true);
@@ -36,54 +35,23 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
     const [screenShare, setShareScreen] = useState(false);
-    const screenData = useLocalScreenTrack(screenShare, {
-        encoderConfig: "720p_1",
-        // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
-        optimizationMode: "detail"
-    }, "auto");
-    const { screenTrack } = screenData;
-    const screenMedia: any = useMemo(() => {
-        if (!screenShare) return {
-            video: null, audio: null
-        }
-        if (Array.isArray(screenTrack)) return {
-            audio: screenTrack?.find(track => track?.trackMediaType === 'audio'),
-            video: screenTrack?.find(track => track?.trackMediaType === 'video')
-        }
-        else return {
-            video: screenTrack,
-            audio: null
-        }
-    }, [screenTrack, screenShare]);
-
-    const handleCloseScreenShare = () => {
-        // if (screenMedia.video) screenMedia.video.close();
-        // if (screenMedia.audio) screenMedia.audio.close();
-        setShareScreen(false);
-    }
-    screenMedia.video?.on("track-ended", () => handleCloseScreenShare());
-
-    // const screenVideo=screenShare?.find((media:any)=>media?.trackMediaType==="video"    )
-    const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
-    const { localCameraTrack } = useLocalCameraTrack(cameraOn);
-
-    // Publish local tracks
-    usePublish([screenMedia.audio ?? localMicrophoneTrack, screenMedia.video ?? localCameraTrack]);
-
-
-    useEffect(() => {
-        if (localMicrophoneTrack)
-            localMicrophoneTrack.setEnabled(micOn);
-    }, [micOn, localMicrophoneTrack])
+    const { screenTrack, error } = useLocalScreenTrack(screenShare, {}, "auto");
     // Get remote users
     const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
+    const remoteUsersWithOutScreen = useMemo(() => remoteUsers.filter(user => user.uid !== 10000), [remoteUsers]);
+    console.log({ remoteUsersWithOutScreen })
     const handleLeaveMeeting = () => {
         setCalling(false);
         router.push(`/sessions/${sessionId}`);
     }
-    const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
+    const currentParticipants = currentSession?.attributes?.participants
+    const onCloseScreenShare = () => {
+        setShareScreen(false)
+    }
 
-
+    useEffect(() => {
+        setShareScreen(false);
+    }, [error]);
 
     if (!isConnected) {
         return (
@@ -102,71 +70,25 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
         <div className={cn("grid grid-cols-1 grid-rows-1 relative", {
             "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsers?.length >= 1
         })}>
-            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden", {
+            <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden z-50", {
                 "block": screenShare
             })}>
-                <LocalUser
-                    cameraOn={cameraOn}
-                    micOn={micOn}
-                    videoTrack={localCameraTrack}
-                    className="rounded-xl relative z-50 shadow-lg"
-
-                >
-                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                        "hidden": cameraOn
-                    })}>
-                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
-
-                    </div>
-                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                        <MicOff className="text-burgundy scale-[0.8]" />
-                    </span>}
-                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-                </LocalUser>
+                <LocalUserVideo micOn={micOn} cameraOn={cameraOn} />
             </div>
-            {screenShare ?
+            <div>
+                {!screenShare ? <LocalUserVideo micOn={micOn} cameraOn={cameraOn} currentUser={currentUser} />
+                    : <LocalUserScreenShare screenShareOn={screenShare} onCloseScreenShare={onCloseScreenShare} screenTrack={screenTrack} appConfig={{
+                        appId,
+                        channel,
+                        token: screenToken
+                    }}
+                    />}
+            </div>
 
-                <LocalUser
-                    cameraOn={screenShare}
-                    micOn={micOn}
-                    videoTrack={screenMedia.video}
-                    className="rounded-xl relative"
-
-                >
-                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                        "hidden": screenShare
-                    })}>
-                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
-
-                    </div>
-                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                        <MicOff className="text-burgundy scale-[0.8]" />
-                    </span>}
-                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-                </LocalUser> :
-                <LocalUser
-                    cameraOn={cameraOn}
-                    micOn={micOn}
-                    videoTrack={localCameraTrack}
-                    className="rounded-xl relative"
-
-                >
-                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                        "hidden": cameraOn
-                    })}>
-                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{currentUser?.user?.first_name?.charAt(0)}</div>
-
-                    </div>
-                    {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                        <MicOff className="text-burgundy scale-[0.8]" />
-                    </span>}
-                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
-                </LocalUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
-                {remoteUsers.map((user) => {
-                    const herkeyUser = currentParticipants?.find((participant) => participant?.user_id === user?.uid) as HerkeyParticipant;
-                    return <AttendeeCard key={user?.uid} user={user} herkeyUser={herkeyUser ?? null} />;
-                })}
+                {remoteUsersWithOutScreen.map((user: any) => (
+                    <AttendeeCard key={user?.uid} user={user} herkeyUser={currentParticipants?.find((participant: any) => participant?.user_id === user?.uid)} />
+                ))}
             </div>
 
         </div>
@@ -196,7 +118,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     className={cn("px-4 py-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center", {
                         "border border-lightBurgundy bg-burgundy text-lightBurgundy": !screenShare
                     })}
-                    onClick={() => screenShare ? handleCloseScreenShare() : setShareScreen(true)}
+                    onClick={() => setShareScreen(!screenShare)}
                 >
                     {!screenShare ?
                         <div title="Turn off video">
@@ -235,7 +157,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser }: { sess
                     </div>
                 </button>
             </div>
-            <div></div>
+            <div className="flex items-center justify-end">
+            </div>
         </div>
     </div>
 

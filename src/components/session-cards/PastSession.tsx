@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Icons from '@/components/icons';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
 import Image from 'next/image';

@@ -71,5 +71,8 @@ interface HerkeyMenuItem {
     linkType?: "internal" | "external",
     subMenus?: HerkeyMenuItem[]
 }
-
-export type { HerkeyToken, HerkeyUser, HerkeyParticipant, HerkeyAttachment, HerkeySession, HerkeyRemoteUser, HerkeyMenuItem }
+interface HerkeyChatToken{
+    app:string;
+    user:string;
+}
+export type { HerkeyToken, HerkeyUser, HerkeyParticipant, HerkeyAttachment, HerkeySession, HerkeyRemoteUser, HerkeyMenuItem,HerkeyChatToken }

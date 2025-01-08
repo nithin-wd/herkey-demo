@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const dynamic = 'force-dynamic';
 import { AUTH_GET } from "@/app/actions-server";
 import SessionTabs from "@/components/SessionTabs";
@@ -6,6 +6,7 @@ import LiveSession from "@/components/session-cards/LiveSession";
 import ScheduledSession from "@/components/session-cards/ScheduledSession";
 import { HerkeySession } from "@/type";
 import PastSession from "@/components/session-cards/PastSession";
+import dayjs from "dayjs";
 // import Image from "next/image";
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -49,11 +50,15 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
 }
 const CardSwitcher = ({ session }: { session: HerkeySession }) => {
   const eventType = session?.attributes?.type
-  if (eventType === "SCHEDULED")
+  const scheduledDate = session?.attributes?.scheduled_date;
+  const isScheduled = dayjs(scheduledDate).isBefore(dayjs());
+  const isLive = !isScheduled && eventType !== "COMPLETED";
+  const isPast = !isScheduled && eventType === "COMPLETED";
+  if (isScheduled)
     return <ScheduledSession session={session} />
-
-  if (eventType === "COMPLETED")
+  if (isPast)
     return <PastSession session={session} />
-
+  if (isLive)
+    return <LiveSession session={session} />
   return <LiveSession session={session} />
 }

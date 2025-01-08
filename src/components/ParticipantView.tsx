@@ -1,28 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
 import {
+    LocalUser,
+    RemoteUser,
+    useIsConnected,
+    useJoin,
     useLocalCameraTrack,
     useLocalMicrophoneTrack,
-    useIsConnected,
-    useRemoteUsers,
-    useJoin,
     usePublish,
-    RemoteUser,
-    LocalUser,
+    useRemoteUsers
 } from "agora-rtc-react";
-import { cn } from "@/lib/utils";
 import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
-import AttendeeCard from "./AttendeeCard";
 import { useRouter } from "next/navigation";
-import { HerkeyParticipant, HerkeyRemoteUser, HerkeySession } from "@/type";
+import { useEffect, useMemo, useState } from "react";
+import AttendeeCard from "./AttendeeCard";
 
-const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number }) => {
+const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID, chatToken }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number; chatToken: string }) => {
+    console.log({ chatToken })
     const router = useRouter();
     const [calling, setCalling] = useState(true);
     const isConnected = useIsConnected(); // Store the user's connection status
 
     const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
+    console.log({ currentUser })
     const channel = sessionId; // Define your channel name
     // const token = process.env.NEXT_PUBLIC_AGORA_TOKEN!;
 
@@ -54,18 +56,23 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
 
-    const remoteParticipants = remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID);
-    const currentParticipants:HerkeyParticipant[]= currentSession?.attributes?.participants
+    const remoteHostScreen = remoteUsers?.find(remoteUser => remoteUser.uid === 10000);
+    const remoteParticipants = useMemo(() => {
+        if(remoteHostScreen) return [remoteHost,...remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== 10000)]
+        return remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== 10000)
+    }, [remoteUsers, hostUID,remoteHostScreen,remoteHost]);
+
+    const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
 
     // Display "Connecting..." message while not connected
-    if (!isConnected) {
+    if (!isConnected && !remoteHost && !remoteHostScreen) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
                 <button
                     className={`px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700`}
                     onClick={() => setCalling(true)}
                 >
-                    Please wait initiating connection
+                    Please wait
                 </button>
             </div>
         );
@@ -88,7 +95,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                     <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
                         "hidden": cameraOn
                     })}>
-                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center">{currentUser?.user?.first_name?.charAt(0)}</div>
+                        <div className="h-[60px] w-[60px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center z-50">{currentUser?.user?.first_name?.charAt(0)}</div>
 
                     </div>
                     {!micOn && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
@@ -97,26 +104,28 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                     <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${currentUser?.user?.first_name} ${currentUser?.user?.last_name}`}</span>
                 </LocalUser>
             </div>
-            <RemoteUser
-                user={remoteHost}
-                className="rounded-xl relative"
+            {remoteHostScreen ?
+                <RemoteUser user={remoteHostScreen} className="rounded-xl relative" />
+                : <RemoteUser
+                    user={remoteHost}
+                    className="rounded-xl relative"
 
-            >
-                <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
-                    "hidden": !remoteHostCameraOff
-                })}>
-                    <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{herKeyHost?.user?.first_name?.charAt(0)}</div>
+                >
+                    <div className={cn("bg-[#a77a91] absolute top-0 bottom-0 right-0 left-0 flex justify-center items-center user-select-none", {
+                        "hidden": !remoteHostCameraOff
+                    })}>
+                        <div className="h-[200px] w-[200px] rounded-full bg-burgundy text-lightBurgundy flex justify-center items-center text-[64px]">{herKeyHost?.user?.first_name?.charAt(0)}</div>
 
-                </div>
-                {remoteHostMicOff && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
-                    <MicOff className="text-burgundy scale-[0.8]" />
-                </span>}
-                <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${herKeyHost?.user?.first_name} ${herKeyHost?.user?.last_name}`}</span>
-            </RemoteUser>
+                    </div>
+                    {remoteHostMicOff && <span className="absolute text-[12px] top-2 right-2 h-[24px] w-[24px] rounded-full bg-lightBurgundy flex justify-center items-center">
+                        <MicOff className="text-burgundy scale-[0.8]" />
+                    </span>}
+                    <span className="absolute text-[12px] font-medium text-lightBurgundy bottom-[12px] left-[12px]">{`${herKeyHost?.user?.first_name} ${herKeyHost?.user?.last_name}`}</span>
+                </RemoteUser>}
             <div className="flex flex-col h-full w-full gap-y-2 overflow-y-auto">
                 {remoteParticipants.map((user) => {
                     const herkeyUser = currentParticipants?.find((participant) => participant?.user_id === user?.uid) as HerkeyParticipant;
-                    return <AttendeeCard key={user?.uid} user={user} herkeyUser={herkeyUser ?? null} />;
+                    return <AttendeeCard key={user?.uid} user={user as HerkeyRemoteUser} herkeyUser={herkeyUser ?? null} />;
                 })}
             </div>
 
@@ -169,7 +178,8 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                     </div>
                 </button>
             </div>
-            <div></div>
+            <div className="flex items-center justify-end">
+            </div>
         </div>
     </div>
 
