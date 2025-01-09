@@ -48,15 +48,7 @@ const getAgoraScreenToken = async (event_id: string) => {
     throw error
   }
 }
-// const getAgoraSignalToken = async (userId: string) => {
-//   try {
-//     const url = new URL(`${baseURL}/api/get-signal-session/${userId}`);
-//     const sessions = await UN_AUTH_GET(url.toString())
-//     return sessions?.data;
-//   } catch (error) {
-//     throw error
-//   }
-// }
+
 
 
 

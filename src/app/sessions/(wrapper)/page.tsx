@@ -49,16 +49,15 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
   );
 }
 const CardSwitcher = ({ session }: { session: HerkeySession }) => {
-  const eventType = session?.attributes?.type
+  // const eventType = session?.attributes?.type
   const scheduledDate = session?.attributes?.scheduled_date;
-  const isScheduled = dayjs(scheduledDate).isBefore(dayjs());
-  const isLive = !isScheduled && eventType !== "COMPLETED";
-  const isPast = !isScheduled && eventType === "COMPLETED";
+  const isScheduled = dayjs(scheduledDate).isAfter(dayjs());
+  // const isLive = !isScheduled && eventType !== "COMPLETED";
+  const isCompleted = dayjs(scheduledDate).add(1, "hour").isBefore(dayjs());
+  // const isPast = eventType === "COMPLETED";
   if (isScheduled)
     return <ScheduledSession session={session} />
-  if (isPast)
+  if (isCompleted)
     return <PastSession session={session} />
-  if (isLive)
-    return <LiveSession session={session} />
   return <LiveSession session={session} />
 }
