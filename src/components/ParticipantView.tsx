@@ -16,6 +16,7 @@ import { LogOut, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
+import ChatDrawer from "./ChatDrawer";
 
 const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID, chatToken }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number; chatToken: string }) => {
     console.log({ chatToken })
@@ -24,7 +25,6 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const isConnected = useIsConnected(); // Store the user's connection status
 
     const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID!;
-    console.log({ currentUser })
     const channel = sessionId; // Define your channel name
     // const token = process.env.NEXT_PUBLIC_AGORA_TOKEN!;
 
@@ -37,7 +37,11 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
-    const { localCameraTrack } = useLocalCameraTrack(cameraOn);
+    const { localCameraTrack } = useLocalCameraTrack(cameraOn,{
+        encoderConfig: "1080p_5",
+        // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
+        optimizationMode: "detail"
+      });
     // Publish local tracks
     usePublish([localMicrophoneTrack, localCameraTrack]);
     useEffect(() => {
@@ -179,6 +183,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 </button>
             </div>
             <div className="flex items-center justify-end">
+                <ChatDrawer appId={appId} userId={UID} chatToken={chatToken} msChannelName={channel} currentSession={currentSession}/>
             </div>
         </div>
     </div>

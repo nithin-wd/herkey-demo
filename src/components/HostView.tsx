@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
 import LocalUserScreenShare from "./LocalUserScreenShare";
 import LocalUserVideo from "./LocalUserVideo";
+import ChatDrawer from "./ChatDrawer";
 
 const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken, screenToken }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string; screenToken: string }) => {
     console.log({ chatToken })
@@ -35,7 +36,11 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
     const [screenShare, setShareScreen] = useState(false);
-    const { screenTrack, error } = useLocalScreenTrack(screenShare, {}, "auto");
+    const { screenTrack, error } = useLocalScreenTrack(screenShare, {
+        encoderConfig: "1080p_5",
+        // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
+        optimizationMode: "detail"
+      }, "auto");
     // Get remote users
     const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
     const remoteUsersWithOutScreen = useMemo(() => remoteUsers.filter(user => user.uid !== 10000), [remoteUsers]);
@@ -157,6 +162,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
                 </button>
             </div>
             <div className="flex items-center justify-end">
+                <ChatDrawer appId={appId} userId={UID} chatToken={chatToken} msChannelName={channel} currentSession={currentSession}/>
             </div>
         </div>
     </div>
