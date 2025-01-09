@@ -52,7 +52,6 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
     useEffect(() => {
         setShareScreen(false);
     }, [error]);
-
     if (!isConnected) {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
@@ -68,12 +67,12 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
     return <div className="grid grid-rows-[60px_auto_60px] h-screen w-screen p-4 gap-y-2">
         <div className="text-lightBurgundy text-[28px] font-[500] flex items-center">{currentSession?.attributes?.title}</div>
         <div className={cn("grid grid-cols-1 grid-rows-1 relative", {
-            "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsers?.length >= 1
+            "grid-cols-[auto_200px]  grid-rows-[unset] gap-4": remoteUsersWithOutScreen?.length >= 1
         })}>
             <div className={cn("absolute top-0 left-0 h-[120px] w-[200px] m-2 hidden z-50", {
-                "block": screenShare
+                "block": screenShare && cameraOn
             })}>
-                <LocalUserVideo micOn={micOn} cameraOn={cameraOn} />
+                <LocalUserVideo micOn={micOn} cameraOn={cameraOn} currentUser={currentUser} isHost={true} />
             </div>
             <div>
                 {!screenShare ? <LocalUserVideo micOn={micOn} cameraOn={cameraOn} currentUser={currentUser} />
