@@ -109,7 +109,7 @@ const ChatDrawer = ({ appId, userId, chatToken, msChannelName, currentSession }:
     }, [messages]);
 
     return (
-        <Sheet open={true}>
+        <Sheet>
             <SheetTrigger asChild>
                 <button
                     className={cn("p-2 bg-red-600 text-burgundy hover:bg-red-700 bg-lightBurgundy rounded-md w-[48px] h-[48px] flex justify-center items-center")}
