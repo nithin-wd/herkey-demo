@@ -10,8 +10,7 @@ const AttendeeCard = ({ user, herkeyUser }: { user: HerkeyRemoteUser, herkeyUser
     const userCameraOff = useMemo(() => user?._video_muted_, [user?._video_muted_]);
     return (
         <div
-            className="flex flex-col items-center justify-center w-full h-full max-h-[112px] min-h-[112px] border"
-
+            className="flex flex-col items-center justify-center w-full h-full max-h-[112px] min-h-[112px]"
         >
             <RemoteUser
                 key={user.uid}

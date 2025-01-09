@@ -7,7 +7,11 @@ const LocalUserVideo = ({
   cameraOn, micOn, currentUser, isHost = false
 }: any) => {
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
-  const { localCameraTrack } = useLocalCameraTrack(cameraOn);
+  const { localCameraTrack } = useLocalCameraTrack(cameraOn, {
+    encoderConfig: "1080p_5",
+    // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
+    optimizationMode: "detail"
+  });
   const client = useRTCClient()
   usePublish([localMicrophoneTrack, localCameraTrack], cameraOn || micOn, client);
   useEffect(() => {
