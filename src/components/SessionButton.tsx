@@ -15,6 +15,7 @@ const SessionButton = ({ currentSession, host, sessionId, userId }: { currentSes
 
     const scheduledDate = useMemo(() => dayjs(currentSession?.attributes?.scheduled_date), [currentSession?.attributes?.scheduled_date]);
     const endDate = useMemo(() => currentSession?.attributes?.end_date ? dayjs(currentSession?.attributes?.end_date) : scheduledDate.add(1, "hour"), [scheduledDate, currentSession?.attributes?.end_date]);
+   
     useEffect(() => {
         const interval = setInterval(() => {
             const remainingSeconds = scheduledDate.diff(dayjs(), 'seconds');
@@ -23,6 +24,7 @@ const SessionButton = ({ currentSession, host, sessionId, userId }: { currentSes
 
         return () => clearInterval(interval); // Cleanup on component unmount
     }, [scheduledDate]);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const isScheduled = useMemo(() => scheduledDate.isAfter(dayjs()), [timeLeft]);
 
@@ -37,8 +39,6 @@ const SessionButton = ({ currentSession, host, sessionId, userId }: { currentSes
         return <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
     if (isHost && isScheduled)
         return <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center px-2'>Start the session</Link>
-
-
 }
 
 export default SessionButton
