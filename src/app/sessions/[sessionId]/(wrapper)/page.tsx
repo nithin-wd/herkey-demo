@@ -6,9 +6,8 @@ import Icons from '@/components/icons';
 import SessionButton from '@/components/SessionButton';
 import Badge from '@/components/svgx/Badge';
 import authOptions from '@/lib/options';
-import { cn } from '@/lib/utils';
+import { cn, readableTime } from '@/lib/utils';
 import { HerkeyParticipant, HerkeySession } from '@/type';
-import dayjs from 'dayjs';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import Image from 'next/image';
@@ -62,7 +61,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
                     <Link href={`${baseURL}/sessions`} className='mr-1 hover:bg-pearlWhite rounded  p-2'>
                         <Icons.BackButton />
                     </Link>
-                    <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(currentSession?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
+                    <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{readableTime(currentSession?.attributes?.scheduled_date)}</div>
                     <CountDown scheduledDate={currentSession?.attributes?.scheduled_date} />
                 </div>
                 <div>

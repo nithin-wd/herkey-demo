@@ -1,14 +1,13 @@
 import Icons from '@/components/icons';
+import authOptions from '@/lib/options';
+import { readableTime } from '@/lib/utils';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
-import dayjs from 'dayjs';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react'
 import SessionButton from '../SessionButton';
-import { getServerSession } from 'next-auth';
-import authOptions from '@/lib/options';
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
-const PastSession = async({ session }: { session: HerkeySession }) => {
+const PastSession = async ({ session }: { session: HerkeySession }) => {
     const nextSession = await getServerSession(authOptions);
     const userId = nextSession?.user?.id
     const host = session?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
@@ -19,7 +18,7 @@ const PastSession = async({ session }: { session: HerkeySession }) => {
         <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
                 <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
-                    <div className='text-blackBerry text-[14px]'>{dayjs(session?.attributes?.scheduled_date).format("DD MMM YYYY, hh:mm a")}</div>
+                    {session?.attributes?.end_date && <div className='text-blackBerry text-[14px]'>{readableTime(session?.attributes?.end_date)}</div>}
                 </div>
                 <Icons.Share />
             </div>
@@ -57,7 +56,7 @@ const PastSession = async({ session }: { session: HerkeySession }) => {
                         </div>
                     </div>
                 </div>
-                <SessionButton sessionId={session?.id} userId={userId} host={host} currentSession={session}/>
+                <SessionButton sessionId={session?.id} userId={userId} host={host} currentSession={session} />
             </div>
         </div>
     )

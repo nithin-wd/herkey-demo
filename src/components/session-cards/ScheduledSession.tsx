@@ -2,8 +2,8 @@
 import CountDown from '@/components/CountDown';
 import Icons from '@/components/icons';
 import authOptions from '@/lib/options';
+import { readableTime } from '@/lib/utils';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
-import dayjs from 'dayjs';
 import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
             <div className="flex justify-between">
                 <div className='flex items-center gap-x-2'>
                     <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
-                        <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(session?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
+                        <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{readableTime(session?.attributes?.scheduled_date)}</div>
                     </div>
                     <CountDown scheduledDate={session?.attributes?.scheduled_date} />
                 </div>

@@ -14,6 +14,7 @@ const SessionButton = ({ currentSession, host, sessionId, userId }: { currentSes
     const isHost = host?.id === userId;
 
     const scheduledDate = useMemo(() => dayjs(currentSession?.attributes?.scheduled_date), [currentSession?.attributes?.scheduled_date]);
+    console.log({dd:currentSession?.attributes?.scheduled_date})
     const endDate = useMemo(() => currentSession?.attributes?.end_date ? dayjs(currentSession?.attributes?.end_date) : scheduledDate.add(1, "hour"), [scheduledDate, currentSession?.attributes?.end_date]);
    
     useEffect(() => {
