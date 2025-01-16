@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic"
 export const maxDuration = 60;
 
-import { AUTH_GET, AUTH_POST, UN_AUTH_GET } from "@/app/actions-server";
+import { AUTH_GET, AUTH_POST } from "@/app/actions-server";
 import HostView from "@/components/HostView";
 import ParticipantView from "@/components/ParticipantView";
 import authOptions from "@/lib/options";
@@ -12,14 +12,13 @@ import { getServerSession } from "next-auth";
 // import ParticipantView from "@/components/ParticipantView";
 
 const baseAPIURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 
 const getSession = async (id: string) => {
   try {
     const url = new URL(`${baseAPIURL}/api/events/${id}/`);
     const sessions = await AUTH_GET(url.toString(), {
-      revalidate: 36000,
+      revalidate: 60,
       tags: ["sessions", id],
     })
     return sessions?.data;
@@ -38,17 +37,7 @@ const getAgoraToken = async (event_id: string) => {
   } catch (error) {
     throw error
   }
-}
-const getAgoraScreenToken = async (event_id: string) => {
-  try {
-    const url = new URL(`${baseURL}/api/get-screen-session/${event_id}`);
-    const sessions = await UN_AUTH_GET(url.toString())
-    return sessions?.data;
-  } catch (error) {
-    throw error
-  }
-}
-
+};
 
 
 
@@ -87,15 +76,13 @@ export default async function Join({
     const agoraSession = await getAgoraToken(sessionId);
     const token = agoraSession.rtc_token?.token;
     const chatToken = agoraSession.rtm_token?.token;
-    // const chatId=session?.user?.email?.split("@")?.[0]
-    // const chatToken =  await getAgoraSignalToken(session?.user?.id);
-    const screenToken = await getAgoraScreenToken(sessionId);
-
+    const screenToken = agoraSession.rtc_screen_share_token?.token;
+    const screenShareUID=hostUID+100;
     return (
       <AgoraHostProvider>
         {isHost ?
-          <HostView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} chatToken={chatToken} screenToken={screenToken}/> :
-          <ParticipantView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} chatToken={chatToken} />}
+          <HostView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} chatToken={chatToken} screenToken={screenToken} screenShareUID={screenShareUID}/> :
+          <ParticipantView sessionId={sessionId} token={token} UID={session?.user?.id} currentSession={currentSession} currentUser={currentUser} hostUID={hostUID} chatToken={chatToken} screenShareUID={screenShareUID} />}
       </AgoraHostProvider>
     );
   } catch (_error: any) {

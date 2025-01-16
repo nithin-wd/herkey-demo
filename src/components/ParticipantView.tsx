@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import AttendeeCard from "./AttendeeCard";
 import ChatDrawer from "./ChatDrawer";
 
-const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID, chatToken }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number; chatToken: string }) => {
+const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, hostUID, chatToken, screenShareUID }: { sessionId: string, token: string, UID: string; currentSession: HerkeySession, currentUser: HerkeyParticipant; hostUID: number; chatToken: string; screenShareUID: number }) => {
     console.log({ chatToken })
     const router = useRouter();
     const [calling, setCalling] = useState(true);
@@ -37,11 +37,11 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const [micOn, setMic] = useState(false);
     const [cameraOn, setCamera] = useState(false);
     const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
-    const { localCameraTrack } = useLocalCameraTrack(cameraOn,{
+    const { localCameraTrack } = useLocalCameraTrack(cameraOn, {
         encoderConfig: "1080p_5",
         // Set the video transmission optimization mode to prioritize quality ("detail"), or smoothness ("motion")
         optimizationMode: "detail"
-      });
+    });
     // Publish local tracks
     usePublish([localMicrophoneTrack, localCameraTrack]);
     useEffect(() => {
@@ -59,12 +59,11 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
     const herKeyHost: HerkeyParticipant | undefined = currentSession?.attributes?.participants?.find((participant) => participant?.user_id === hostUID);
     const remoteHostMicOff = useMemo(() => remoteHost?._audio_muted_, [remoteHost?._audio_muted_]);
     const remoteHostCameraOff = useMemo(() => remoteHost?._video_muted_, [remoteHost?._video_muted_]);
-
-    const remoteHostScreen = remoteUsers?.find(remoteUser => remoteUser.uid === 10000);
+    const remoteHostScreen = remoteUsers?.find(remoteUser => remoteUser.uid === screenShareUID);
     const remoteParticipants = useMemo(() => {
-        if(remoteHostScreen) return [remoteHost,...remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== 10000)]
-        return remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== 10000)
-    }, [remoteUsers, hostUID,remoteHostScreen,remoteHost]);
+        if (remoteHostScreen) return [remoteHost, ...remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== screenShareUID)]
+        return remoteUsers?.filter(remoteUser => remoteUser?.uid !== hostUID && remoteUser.uid !== screenShareUID)
+    }, [remoteUsers, hostUID, remoteHostScreen, remoteHost, screenShareUID]);
 
     const currentParticipants: HerkeyParticipant[] = currentSession?.attributes?.participants
 
@@ -183,7 +182,7 @@ const ParticipantView = ({ sessionId, token, UID, currentSession, currentUser, h
                 </button>
             </div>
             <div className="flex items-center justify-end">
-                <ChatDrawer appId={appId} userId={UID} chatToken={chatToken} msChannelName={channel} currentSession={currentSession}/>
+                <ChatDrawer appId={appId} userId={UID} chatToken={chatToken} msChannelName={channel} currentSession={currentSession} />
             </div>
         </div>
     </div>

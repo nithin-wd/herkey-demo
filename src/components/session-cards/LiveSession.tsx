@@ -3,8 +3,13 @@ import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
+import SessionButton from '../SessionButton';
+import { getServerSession } from 'next-auth';
+import authOptions from '@/lib/options';
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
-const LiveSession = ({ session }: {session:HerkeySession}) => {
+const LiveSession = async({ session }: {session:HerkeySession}) => {
+    const nextSession = await getServerSession(authOptions);
+    const userId = nextSession?.user?.id
     const host = session?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
     const otherParticipantsCount = session?.attributes?.participants?.filter((participant: HerkeyParticipant) => participant?.type !== "HOST")?.length;
     const bannerURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "BANNER")?.signed_url;
@@ -54,8 +59,8 @@ const LiveSession = ({ session }: {session:HerkeySession}) => {
                         </div>
                     </div>
                 </div>
-                <Link href={`${baseURL}/sessions/${session?.id}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
-            </div>
+                <SessionButton sessionId={session?.id} userId={userId} host={host} currentSession={session}/>
+                </div>
         </div>
     )
 }

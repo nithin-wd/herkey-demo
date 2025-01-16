@@ -48,6 +48,7 @@ interface HerkeySession {
         "description": string,
         "type": "SCHEDULED" | "LIVE" | "COMPLETED",
         "scheduled_date": string,
+        "end_date"?: string,
         "created": string,
         "modified": string,
         "active": boolean,

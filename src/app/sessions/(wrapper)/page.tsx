@@ -16,7 +16,7 @@ const getSessions = async (type: "all" | "my") => {
 
     const url = new URL(`${baseURL}/api/events/`);
     const sessions = await AUTH_GET(url.toString(), {
-      revalidate: 36000,
+      revalidate: 60,
       tags: ["sessions", type],
     })
     return sessions?.data
@@ -49,11 +49,13 @@ export default async function Sessions({ searchParams }: { searchParams: any }) 
   );
 }
 const CardSwitcher = ({ session }: { session: HerkeySession }) => {
+  console.log({ session })
   // const eventType = session?.attributes?.type
-  const scheduledDate = session?.attributes?.scheduled_date;
-  const isScheduled = dayjs(scheduledDate).isAfter(dayjs());
+  const scheduledDate = dayjs(session?.attributes?.scheduled_date);
+  const isScheduled = scheduledDate.isAfter(dayjs());
   // const isLive = !isScheduled && eventType !== "COMPLETED";
-  const isCompleted = dayjs(scheduledDate).add(1, "hour").isBefore(dayjs());
+  const endDate = session?.attributes?.end_date ? dayjs(session?.attributes?.end_date) : scheduledDate.add(1, "hour");
+  const isCompleted = endDate.isBefore(dayjs());
   // const isPast = eventType === "COMPLETED";
   if (isScheduled)
     return <ScheduledSession session={session} />

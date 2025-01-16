@@ -16,8 +16,7 @@ import LocalUserScreenShare from "./LocalUserScreenShare";
 import LocalUserVideo from "./LocalUserVideo";
 import ChatDrawer from "./ChatDrawer";
 
-const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken, screenToken }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string; screenToken: string }) => {
-    console.log({ chatToken })
+const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToken, screenToken,screenShareUID }: { sessionId: string, token: string, UID: string; currentSession: any, currentUser: any; chatToken: string; screenToken: string;screenShareUID:string }) => {
     const router = useRouter()
 
     const [calling, setCalling] = useState(true);
@@ -43,7 +42,7 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
       }, "auto");
     // Get remote users
     const remoteUsers: HerkeyRemoteUser[] = useRemoteUsers();
-    const remoteUsersWithOutScreen = useMemo(() => remoteUsers.filter(user => user.uid !== 10000), [remoteUsers]);
+    const remoteUsersWithOutScreen = useMemo(() => remoteUsers.filter(user => user.uid !== screenShareUID), [remoteUsers,screenShareUID]);
     console.log({ remoteUsersWithOutScreen })
     const handleLeaveMeeting = () => {
         setCalling(false);
@@ -84,7 +83,8 @@ const HostView = ({ sessionId, token, UID, currentSession, currentUser, chatToke
                     : <LocalUserScreenShare screenShareOn={screenShare} onCloseScreenShare={onCloseScreenShare} screenTrack={screenTrack} appConfig={{
                         appId,
                         channel,
-                        token: screenToken
+                        token: screenToken,
+                        screenShareUID
                     }}
                     />}
             </div>

@@ -1,12 +1,13 @@
 
+import CountDown from '@/components/CountDown';
 import Icons from '@/components/icons';
 import authOptions from '@/lib/options';
 import { HerkeyAttachment, HerkeyParticipant, HerkeySession } from '@/type';
+import dayjs from 'dayjs';
 import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
-import InterestButton from '../InterestButton';
-import dayjs from 'dayjs';
+import SessionButton from '../SessionButton';
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
@@ -16,13 +17,14 @@ const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
     const otherParticipantsCount = session?.attributes?.participants?.filter((participant: HerkeyParticipant) => participant?.type !== "HOST")?.length;
     const bannerURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "BANNER")?.signed_url;
     const eventImageURL = session?.attributes?.attachments?.find((attachment: HerkeyAttachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
-    const isHost = host?.id === userId;
-
     return (
         <div className="px-2 py-4 md:p-[20px] text-black bg-pureWhite flex flex-col gap-y-4 border-b border-b-[#EAEAEA]">
             <div className="flex justify-between">
-                <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
-                <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(session?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
+                <div className='flex items-center gap-x-2'>
+                    <div className='bg-lightBurgundy flex items-center gap-x-[10px] rounded-[6px] px-2 h-[28px] justify-center'>
+                        <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(session?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
+                    </div>
+                    <CountDown scheduledDate={session?.attributes?.scheduled_date} />
                 </div>
                 <Icons.Share />
             </div>
@@ -61,11 +63,7 @@ const ScheduledSession = async ({ session }: { session: HerkeySession }) => {
                         </div>
                     </div>
                 </div>
-                {isHost ?
-                    <Link href={`${baseURL}/sessions/${session?.id}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Start Session</Link>
-                    :
-                    <InterestButton sessionId={session?.id} />
-                }
+                <SessionButton sessionId={session?.id} userId={userId} host={host} currentSession={session}/>
             </div>
         </div>
     )

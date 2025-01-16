@@ -16,7 +16,6 @@ interface ShareScreenProps {
   onCloseScreenShare: () => void;
   appConfig: any
 }
-const ShareScreenUID = 10000;
 
 export const ScreenShare = ({
   screenShareOn,
@@ -36,7 +35,7 @@ export const ScreenShare = ({
       appid: appConfig?.appId,
       channel: appConfig.channel,
       token: appConfig.token,
-      uid: ShareScreenUID,
+      uid: appConfig?.screenShareUID,
     },
     screenShareOn,
     client,

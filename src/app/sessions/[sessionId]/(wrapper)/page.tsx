@@ -1,8 +1,9 @@
 
 import { AUTH_GET } from '@/app/actions-server';
 import { metadata as rootMetaData } from "@/app/layout";
+import CountDown from '@/components/CountDown';
 import Icons from '@/components/icons';
-import InterestButton from '@/components/InterestButton';
+import SessionButton from '@/components/SessionButton';
 import Badge from '@/components/svgx/Badge';
 import authOptions from '@/lib/options';
 import { cn } from '@/lib/utils';
@@ -22,7 +23,7 @@ const getSession = async (id: string): Promise<HerkeySession> => {
 
         const url = new URL(`${baseAPIURL}/api/events/${id}/`);
         const sessions = await AUTH_GET(url.toString(), {
-            revalidate: 36000,
+            revalidate: 60,
             tags: ["sessions", id],
         })
         return sessions?.data;
@@ -41,17 +42,17 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     };
 }
 
+
+
 const SessionDetails = async ({ params }: { params: any }) => {
     const { sessionId } = await params;
     const nextSession = await getServerSession(authOptions);
     const userId = nextSession?.user?.id
-
-
     const currentSession: HerkeySession = await getSession(sessionId);
-    const host = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;
+    const host = currentSession?.attributes?.participants?.find((participant: HerkeyParticipant) => participant?.type === "HOST")?.user;    
     const bannerURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "BANNER")?.signed_url;
     const eventImageURL = currentSession?.attributes?.attachments?.find((attachment) => attachment?.type === "EVENT_IMAGE")?.signed_url;
-    const isHost = host?.id === userId;
+   
 
 
     return (
@@ -62,7 +63,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
                         <Icons.BackButton />
                     </Link>
                     <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>{dayjs(currentSession?.attributes?.scheduled_date).format("ddd, DD MMM YY | hh:mm A")}</div>
-                    <div className='bg-lightBurgundy text-blackBerry rounded-[6px] px-[12px] py-[6px] text-[12px] font-[400]'>1 hr 15 m</div>
+                    <CountDown scheduledDate={currentSession?.attributes?.scheduled_date} />
                 </div>
                 <div>
                     <Icons.Share />
@@ -88,11 +89,7 @@ const SessionDetails = async ({ params }: { params: any }) => {
             <div className='flex justify-between items-center'>
 
                 <button className='text-burgundy font-[500] w-fit'>Add to calendar</button>
-                {(currentSession?.attributes?.type === "LIVE" || isHost) ?
-                    <Link href={`${baseURL}/sessions/${sessionId}/join`} className='min-w-[112px] md:min-w-[200px] h-[40px] bg-green rounded-[12px] text-pureWhite flex justify-center items-center'>Join</Link>
-                    :
-                    <InterestButton sessionId={sessionId} />
-                }
+               <SessionButton sessionId={sessionId} userId={userId} host={host} currentSession={currentSession}/>
             </div>
             <div>{`Interested Participants (${currentSession?.attributes?.participants?.length})`}</div>
             <div className='flex flex-col gap-y-2'>{currentSession?.attributes?.participants?.map((participant) => {
